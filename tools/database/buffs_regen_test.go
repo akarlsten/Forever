@@ -97,7 +97,16 @@ func TestScopeMatchesTheClientTargeting(t *testing.T) {
 // each with the reason the scope is still what the sim wants.
 var scopeExemptions = map[string]string{
 	"thorns": "the druid trains no raid-wide spell of the family, so the raid scope is the sim spreading the one cast 9910 states over every player",
+
+	"battle_shout":            raidWideSince70425,
+	"leader_of_the_pack":      raidWideSince70425,
+	"moonkin_aura":            raidWideSince70425,
+	"trueshot_aura":           raidWideSince70425,
+	"strength_of_earth_totem": raidWideSince70425,
+	"grace_of_air_totem":      raidWideSince70425,
 }
+
+const raidWideSince70425 = "build 70425 made the aura raid-wide; the field stays in PartyBuffs so saved settings keep working, which reaches the same players in a one-party sim"
 
 // What the client says against the scope the manifest files the row under, and
 // "" when the two agree or the row is one the client may state nothing for.
@@ -124,8 +133,8 @@ func scopeComplaint(row ResolvedBuff) string {
 // The paladin auras state a healing-taken row of 0 beside the aura, which the
 // parse leaves out.
 var pinnedAmounts = map[string]map[string]float64{
-	"leader_of_the_pack": {"stat PhysicalCritPercent+SpellCritPercent": 3},
-	"moonkin_aura":       {"stat PhysicalCritPercent+SpellCritPercent": 3},
+	"leader_of_the_pack": {"stat PhysicalCritPercent": 3}, // weapon crit only since build 70425
+	"moonkin_aura":       {"stat SpellCritPercent": 3},    // spell crit only since build 70425
 	"expose_armor":       {"stat Armor": -2250},
 	"devotion_aura":      {"stat Armor": 735},
 	"concentration_aura": {"pushback": -0.35},

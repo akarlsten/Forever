@@ -155,17 +155,16 @@ var Party = []BuffSpec{
 			proto.Stat_StatArmor,
 		},
 	},
-	// A_MOD_CRIT_PCT names no school, so the 3 goes on every kind of crit. 17007 calls the aura
-	// exclusive with Moonkin Aura, which is the category the two share.
+	// Build 70425 split the two druid crit auras: Leader of the Pack is weapon crit only (aura 52) and
+	// Moonkin Aura spell crit only (aura 57), and they no longer exclude each other.
 	{
 		Field:      "leader_of_the_pack",
 		SpellID:    24932,
 		CastID:     17007,
-		Category:   "DruidCritAura",
+		Category:   "LeaderOfThePack",
 		SingleAura: true,
 		Stats: []proto.Stat{
 			proto.Stat_StatMeleeCritRating,
-			proto.Stat_StatSpellCritRating,
 		},
 	},
 	{
@@ -178,11 +177,12 @@ var Party = []BuffSpec{
 			proto.Stat_StatMP5,
 		},
 	},
-	// The cast states the totem's 13 s life and the 5 min cooldown, the aura the mana.
+	// The cast states the totem's 13 s life and the 5 min cooldown, the aura the mana. Build 70425
+	// added a fourth rank at level 58 (1325256/1325257) with rank 3's old 290 a pulse.
 	{
 		Field:    "mana_tide_totems",
-		SpellID:  17360,
-		CastID:   17359,
+		SpellID:  1325257,
+		CastID:   1325256,
 		Kind:     KindExternalCD,
 		Category: "ManaTideTotem",
 		Stats: []proto.Stat{
@@ -194,10 +194,9 @@ var Party = []BuffSpec{
 	{
 		Field:      "moonkin_aura",
 		SpellID:    24907,
-		Category:   "DruidCritAura",
+		Category:   "MoonkinAura",
 		SingleAura: true,
 		Stats: []proto.Stat{
-			proto.Stat_StatMeleeCritRating,
 			proto.Stat_StatSpellCritRating,
 		},
 	},

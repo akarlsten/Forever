@@ -416,7 +416,23 @@ func skipRow(_ *parser, _ *Effect, _ float64) *attachment {
 }
 
 func percentStatRow(p *parser, e *Effect, v float64) *attachment {
-	return p.statMultiplier(clientStatList(e.Misc), percentMultiplier(v))
+	return p.statMultiplier(effectStatList(e), percentMultiplier(v))
+}
+
+// The stats a stat percent row names. Forever's client states them as a bit mask in the second misc
+// value (Blessing of Kings 31, Insight 16 for Spirit; every A_MOD_TOTAL_STAT_PERCENTAGE row since build
+// 70425); the older rows give one stat's index, or -1 for all five, in the first.
+func effectStatList(e *Effect) []stats.Stat {
+	if e.Misc2 == 0 {
+		return clientStatList(e.Misc)
+	}
+	var list []stats.Stat
+	for i, stat := range clientStats {
+		if e.Misc2&(1<<i) != 0 {
+			list = append(list, stat)
+		}
+	}
+	return list
 }
 
 // The spells a modifier effect names. The client leaves the mask empty on an effect that means the

@@ -15,7 +15,6 @@ func (warlock *Warlock) registerAfflictionTalents() {
 	warlock.applyImprovedCorruption()
 
 	// Tier 2
-	warlock.applyMalediction()
 	warlock.applySoulHarvesting()
 	warlock.applyImprovedDrains()
 
@@ -73,26 +72,6 @@ func (warlock *Warlock) applyImprovedCorruption() {
 		Kind:       core.SpellMod_DotDamageDone_Pct,
 		FloatValue: spellData.ImprovedCorruption.Effect(dbcenums.A_ADD_PCT_MODIFIER, int32(dbcenums.SPELLMOD_DOT)).FractionAt(points),
 		ClassMask:  WarlockSpellCorruption,
-	})
-}
-
-// Forever moved Malediction off the curse: the beta client's 1225177 is a flat 1% a point on the
-// warlock's own damage and dot damage, not a bonus on Curse of the Elements.
-func (warlock *Warlock) applyMalediction() {
-	if warlock.Talents.Malediction == 0 {
-		return
-	}
-
-	// Periodic damage only ("Increases all periodic damage done"). The row also states the same
-	// value on op 0, but a tick already takes DamageDone, so taking both would count it twice.
-	// Hellfire's area hits are Hellfire Effect (11682), a direct School Damage effect, so in the
-	// client the dot modifier only reached the self-burn. Dev AidanZMoon called that a bug, 'Fixed
-	// in next build' (forever-bugs #311, 2026-10-13), so the area hits take it too.
-	points := warlock.Talents.Malediction
-	warlock.AddStaticMod(core.SpellModConfig{
-		Kind:       core.SpellMod_DotDamageDone_Pct,
-		FloatValue: spellData.Malediction.Effect(dbcenums.A_ADD_PCT_MODIFIER, int32(dbcenums.SPELLMOD_DOT)).FractionAt(points),
-		ClassMask:  WarlockSpellAll,
 	})
 }
 

@@ -90,6 +90,7 @@ func (priest *Priest) applyTwinDisciplines() {
 	})
 }
 
+// Silent Resolve lowers Holy and Shadow threat (70425: school mask 2 -> 34).
 func (priest *Priest) applySilentResolve() {
 	if priest.Talents.SilentResolve == 0 {
 		return
@@ -97,8 +98,8 @@ func (priest *Priest) applySilentResolve() {
 
 	priest.AddStaticMod(core.SpellModConfig{
 		ClassMask:  PriestSpellsAll,
-		School:     core.SpellSchoolHoly,
-		FloatValue: spellData.SilentResolve.Effect(dbcenums.A_MOD_THREAT, 2).FractionAt(priest.Talents.SilentResolve),
+		School:     core.SpellSchoolHoly | core.SpellSchoolShadow,
+		FloatValue: spellData.SilentResolve.Effect(dbcenums.A_MOD_THREAT, 34).FractionAt(priest.Talents.SilentResolve),
 		Kind:       core.SpellMod_ThreatMultiplier_Pct,
 	})
 }

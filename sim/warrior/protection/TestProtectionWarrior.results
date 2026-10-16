@@ -1203,8 +1203,8 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-RingofSaviors-1447"
  value: {
-  dps: 245.9871
-  tps: 525.88075
+  dps: 245.70864
+  tps: 525.32077
   dtps: 1519.40968
  }
 }
@@ -1499,9 +1499,9 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-TheGreenTower-1204"
  value: {
-  dps: 244.19416
-  tps: 524.8391
-  dtps: 1537.45192
+  dps: 246.26861
+  tps: 528.88481
+  dtps: 1537.43636
  }
 }
 dps_results: {

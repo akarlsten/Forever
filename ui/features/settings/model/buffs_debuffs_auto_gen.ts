@@ -47,7 +47,7 @@ export const ManaSpringTotem = makeTristatePartyBuffInput({
 });
 
 export const ManaTideTotems = makeMultistatePartyBuffInput({
-	actionId: ActionId.fromSpellId(17360),
+	actionId: ActionId.fromSpellId(1325257),
 	numStates: 5,
 	fieldName: 'manaTideTotems',
 	label: 'Mana Tide Totem',
@@ -405,7 +405,7 @@ export const GENERATED_PARTY_BUFFS_CONFIG: RenderableStatOptions[] = [
 	},
 	{
 		config: LeaderOfThePack,
-		stats: [Stat.StatMeleeCritRating, Stat.StatSpellCritRating],
+		stats: [Stat.StatMeleeCritRating],
 		ownerClass: Class.ClassDruid,
 	},
 	{
@@ -420,7 +420,7 @@ export const GENERATED_PARTY_BUFFS_CONFIG: RenderableStatOptions[] = [
 	},
 	{
 		config: MoonkinAura,
-		stats: [Stat.StatMeleeCritRating, Stat.StatSpellCritRating],
+		stats: [Stat.StatSpellCritRating],
 		ownerClass: Class.ClassDruid,
 	},
 	{

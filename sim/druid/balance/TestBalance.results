@@ -644,6 +644,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-LordSakrasis'Scepter-5028"
+ value: {
+  dps: 218.97841
+  tps: 119.41331
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-Magister'sRegalia"
  value: {
   dps: 240.75939
@@ -721,6 +728,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-MysticMushroom-249396"
+ value: {
+  dps: 187.86934
+  tps: 98.35751
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-Naglering-11669"
  value: {
   dps: 186.69889
@@ -779,8 +793,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-RingofSaviors-1447"
  value: {
-  dps: 187.86934
-  tps: 98.35751
+  dps: 186.69889
+  tps: 97.79218
  }
 }
 dps_results: {

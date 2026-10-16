@@ -140,9 +140,9 @@ func (mage *Mage) registerArcaneConcentration() {
 	// 70 procs on 246 Arcane Explosions (722 targets hit, 11% a target), 12 on 37 Blizzard casts,
 	// 0 on 642 Blizzard tick hits (62 if they rolled) and 0 on 32 missiles.
 	mage.MakeProcTriggerAura(core.ProcTrigger{
-		Name:           "Arcane Concentration",
-		Callback:       core.CallbackOnSpellHitDealt,
-		ClassSpellMask: MageSpellsAllDamaging &^ MageSpellArcaneMissilesTick,
+		Name:               "Arcane Concentration",
+		Callback:           core.CallbackOnSpellHitDealt,
+		ClassSpellMask:     MageSpellsAllDamaging &^ MageSpellArcaneMissilesTick,
 		Outcome:            core.OutcomeLanded,
 		ProcChance:         spellData.ArcaneConcentration.EffectAt(1).FractionAt(mage.Talents.ArcaneConcentration),
 		ICD:                spellData.ArcaneConcentration.Highest().ICD(),
@@ -223,7 +223,7 @@ func (mage *Mage) registerArcaneMeditation() {
 // is half of it, which the row doesn't state. The buff (400589) holds the duration, cost and tick
 // changes. 44404 stays the aura id because saved rotations key on it.
 func (mage *Mage) registerMissileBarrage() {
-	if !mage.Talents.MissileBarrage {
+	if mage.Talents.MissileBarrage == 0 {
 		return
 	}
 

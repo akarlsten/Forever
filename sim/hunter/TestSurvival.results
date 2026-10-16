@@ -65,8 +65,8 @@ dps_results: {
 dps_results: {
  key: "TestSurvival-AllItems-Alcor'sSunrazor-14555"
  value: {
-  dps: 396.71685
-  tps: 239.29197
+  dps: 396.92773
+  tps: 239.43959
  }
 }
 dps_results: {
@@ -144,6 +144,13 @@ dps_results: {
  value: {
   dps: 313.28499
   tps: 179.34899
+ }
+}
+dps_results: {
+ key: "TestSurvival-AllItems-BladeofHanna-2801"
+ value: {
+  dps: 452.15282
+  tps: 276.61776
  }
 }
 dps_results: {
@@ -970,7 +977,7 @@ dps_results: {
  key: "TestSurvival-AllItems-RingofSaviors-1447"
  value: {
   dps: 291.7917
-  tps: 164.25882
+  tps: 164.26082
  }
 }
 dps_results: {
@@ -1200,8 +1207,8 @@ dps_results: {
 dps_results: {
  key: "TestSurvival-AllItems-TheLobotomizer-19324"
  value: {
-  dps: 385.17462
-  tps: 231.05059
+  dps: 383.54342
+  tps: 229.90875
  }
 }
 dps_results: {
