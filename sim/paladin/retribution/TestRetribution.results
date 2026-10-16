@@ -1348,85 +1348,85 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-Settings-Dwarf-Weapon-DefaultTalents-Default-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 760.13924
-  tps: 920.73492
+  dps: 761.14926
+  tps: 921.30053
  }
 }
 dps_results: {
  key: "TestRetribution-Settings-Dwarf-Weapon-DefaultTalents-Default-default-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 365.87864
-  tps: 222.45938
+  dps: 366.46172
+  tps: 222.78591
  }
 }
 dps_results: {
  key: "TestRetribution-Settings-Dwarf-Weapon-DefaultTalents-Default-default-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 380.746
-  tps: 231.76207
+  dps: 381.28295
+  tps: 232.06276
  }
 }
 dps_results: {
  key: "TestRetribution-Settings-Dwarf-Weapon-DefaultTalents-Default-default-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 174.22512
-  tps: 193.85047
+  dps: 174.35127
+  tps: 193.95139
  }
 }
 dps_results: {
  key: "TestRetribution-Settings-Dwarf-Weapon-DefaultTalents-Default-default-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 122.1618
-  tps: 103.67944
+  dps: 122.26239
+  tps: 103.75991
  }
 }
 dps_results: {
  key: "TestRetribution-Settings-Dwarf-Weapon-DefaultTalents-Default-default-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 144.77059
-  tps: 122.3498
+  dps: 144.86871
+  tps: 122.4283
  }
 }
 dps_results: {
  key: "TestRetribution-Settings-Dwarf-Weapon-Retribution 9/0/42-Default-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 758.38806
-  tps: 922.65537
+  dps: 759.39144
+  tps: 923.21726
  }
 }
 dps_results: {
  key: "TestRetribution-Settings-Dwarf-Weapon-Retribution 9/0/42-Default-default-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 366.73536
-  tps: 222.93315
+  dps: 367.33311
+  tps: 223.26789
  }
 }
 dps_results: {
  key: "TestRetribution-Settings-Dwarf-Weapon-Retribution 9/0/42-Default-default-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 380.92019
-  tps: 232.03438
+  dps: 381.45689
+  tps: 232.33493
  }
 }
 dps_results: {
  key: "TestRetribution-Settings-Dwarf-Weapon-Retribution 9/0/42-Default-default-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 165.82171
-  tps: 164.54625
+  dps: 165.94318
+  tps: 164.64343
  }
 }
 dps_results: {
  key: "TestRetribution-Settings-Dwarf-Weapon-Retribution 9/0/42-Default-default-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 113.0692
-  tps: 95.04425
+  dps: 113.16113
+  tps: 95.11779
  }
 }
 dps_results: {
  key: "TestRetribution-Settings-Dwarf-Weapon-Retribution 9/0/42-Default-default-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 140.7229
-  tps: 118.2561
+  dps: 140.82196
+  tps: 118.33535
  }
 }
 dps_results: {

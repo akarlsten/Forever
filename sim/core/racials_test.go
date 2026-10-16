@@ -339,8 +339,8 @@ func TestBloodFuryReportsItsTemporaryStats(t *testing.T) {
 }
 
 // Build 70425: Ruthless (human, was Sword Specialization) is 2% crit on everything whatever the weapon,
-// and Earth Fury (dwarf, was Mace Specialization) is +2% crit damage while a mace is equipped.
-func TestRacialCritIgnoresTheWeaponAndEarthFuryNeedsAMace(t *testing.T) {
+// and Earth Fury (dwarf, was Mace Specialization) is +2% crit damage whatever the weapon.
+func TestRacialCritAndEarthFuryIgnoreTheWeapon(t *testing.T) {
 	const maceID, swordID int32 = 991101, 991102
 	oneHander := func(id int32, weaponType proto.WeaponType) *proto.SimItem {
 		return &proto.SimItem{
@@ -407,7 +407,7 @@ func TestRacialCritIgnoresTheWeaponAndEarthFuryNeedsAMace(t *testing.T) {
 	if mh := dwarfMace.AutoAttacks.MHAuto().CritMultiplierAdditive; !WithinToleranceFloat64(0.02, mh, 1e-9) {
 		t.Errorf("dwarf with a mace: crit damage bonus %.3f, want 0.02", mh)
 	}
-	if mh := dwarfSword.AutoAttacks.MHAuto().CritMultiplierAdditive; mh != 0 {
-		t.Errorf("dwarf without a mace: crit damage bonus %.3f, want 0", mh)
+	if mh := dwarfSword.AutoAttacks.MHAuto().CritMultiplierAdditive; !WithinToleranceFloat64(0.02, mh, 1e-9) {
+		t.Errorf("dwarf without a mace: crit damage bonus %.3f, want 0.02", mh)
 	}
 }

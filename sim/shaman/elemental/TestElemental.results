@@ -1318,43 +1318,43 @@ dps_results: {
 dps_results: {
  key: "TestElemental-Settings-Dwarf-Naked-Standard-forever-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 393.09579
-  tps: 425.19907
+  dps: 393.42388
+  tps: 425.39271
  }
 }
 dps_results: {
  key: "TestElemental-Settings-Dwarf-Naked-Standard-forever-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 127.38649
-  tps: 81.48216
+  dps: 127.49395
+  tps: 81.54494
  }
 }
 dps_results: {
  key: "TestElemental-Settings-Dwarf-Naked-Standard-forever-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 170.44182
-  tps: 105.96351
+  dps: 170.58953
+  tps: 106.04814
  }
 }
 dps_results: {
  key: "TestElemental-Settings-Dwarf-Naked-Standard-forever-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 111.94872
-  tps: 94.42734
+  dps: 111.98005
+  tps: 94.45366
  }
 }
 dps_results: {
  key: "TestElemental-Settings-Dwarf-Naked-Standard-forever-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 40.57409
-  tps: 33.94518
+  dps: 40.58603
+  tps: 33.9552
  }
 }
 dps_results: {
  key: "TestElemental-Settings-Dwarf-Naked-Standard-forever-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 79.90915
-  tps: 66.99662
+  dps: 79.93301
+  tps: 67.01668
  }
 }
 dps_results: {

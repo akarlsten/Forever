@@ -1242,43 +1242,43 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-Settings-Dwarf-Weapon-Standard-forever-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 827.48452
-  tps: 997.22278
+  dps: 828.8498
+  tps: 997.89177
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Dwarf-Weapon-Standard-forever-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 331.02997
-  tps: 173.80802
+  dps: 331.75374
+  tps: 174.16267
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Dwarf-Weapon-Standard-forever-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 356.22203
-  tps: 187.20921
+  dps: 357.04993
+  tps: 187.61488
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Dwarf-Weapon-Standard-forever-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 196.05669
-  tps: 137.23968
+  dps: 196.31973
+  tps: 137.42381
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Dwarf-Weapon-Standard-forever-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 127.5647
-  tps: 89.29529
+  dps: 127.761
+  tps: 89.4327
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Dwarf-Weapon-Standard-forever-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 172.08563
-  tps: 120.45994
+  dps: 172.37885
+  tps: 120.6652
  }
 }
 dps_results: {

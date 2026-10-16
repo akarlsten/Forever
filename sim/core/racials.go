@@ -310,37 +310,16 @@ func applyRacialCrit(character *Character, label string, spellID int32, critPerc
 }
 
 // Earth Fury (dwarf 1259719, was Mace Specialization's 1% crit): +2% critical strike damage and
-// healing bonus (auras 163 and 50) while a mace is equipped, the requirement the row keeps
-// (SpellEquippedItems subclass mask 48, one- and two-handed maces).
+// healing bonus (auras 163 and 50) whatever the weapon, as the 70425 tooltip reads. The client still
+// carries Mace Specialization's SpellEquippedItems row (subclass mask 48, maces), left over.
 func applyEarthFury(character *Character) {
-	hasMace := func() bool {
-		return character.GetProcMaskForTypes(proto.WeaponType_WeaponTypeMace).Matches(ProcMaskMelee)
-	}
-
-	critBonus := character.AddDynamicMod(SpellModConfig{Kind: SpellMod_CritMultiplier_Flat, FloatValue: 0.02})
-	aura := character.RegisterAura(Aura{
+	MakePermanent(character.RegisterAura(Aura{
 		Label:      "Earth Fury",
 		ActionID:   ActionID{SpellID: 1259719},
 		Duration:   NeverExpires,
-		BuildPhase: Ternary(hasMace(), CharacterBuildPhaseBase, CharacterBuildPhaseNone),
-		OnGain: func(_ *Aura, _ *Simulation) {
-			critBonus.Activate()
-		},
-		OnExpire: func(_ *Aura, _ *Simulation) {
-			critBonus.Deactivate()
-		},
-	})
-	if hasMace() {
-		MakePermanent(aura)
-	}
-
-	character.RegisterItemSwapCallback(AllWeaponSlots(), func(sim *Simulation, _ proto.ItemSlot) {
-		if hasMace() {
-			aura.Activate(sim)
-		} else {
-			aura.Deactivate(sim)
-		}
-	})
+		BuildPhase: CharacterBuildPhaseBase,
+	}))
+	character.AddStaticMod(SpellModConfig{Kind: SpellMod_CritMultiplier_Flat, FloatValue: 0.02})
 }
 
 func applyExpansiveMind(character *Character) {
