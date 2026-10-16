@@ -387,3 +387,45 @@ func TestDarkInspirationRaisesSpirit(t *testing.T) {
 		}
 	}
 }
+
+// Improved Mind Flay 2/2 (build 70425): each tick deals 20% more than the one before, so a full channel
+// deals 1 + 1.2 + 1.44 = 3.64 ticks' worth where an untalented one deals 3. The ticks read the caster's
+// current multipliers, so the growth has to reach that path, not only the snapshot.
+func TestImprovedMindFlayTicksGrow(t *testing.T) {
+	channel := func(talents string) float64 {
+		player := core.WithSpec(&proto.Player{
+			Race:          proto.Race_RaceUndead,
+			Class:         proto.Class_ClassPriest,
+			Equipment:     &proto.EquipmentSpec{},
+			Consumables:   &proto.ConsumesSpec{},
+			TalentsString: talents,
+			Rotation:      &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
+		}, &proto.Player_DpsPriest{DpsPriest: &proto.DpsPriest{Options: &proto.DpsPriest_Options{ClassOptions: &proto.PriestOptions{}}}})
+		sim := core.NewSim(&proto.RaidSimRequest{
+			SimOptions: &proto.SimOptions{RandomSeed: 100},
+			Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+			Encounter:  core.MakeSingleTargetEncounter(0),
+		}, simsignals.CreateSignals())
+		sim.Reset()
+		priest := sim.Raid.Parties[0].Players[0].(PriestAgent).GetPriest()
+		priest.AddStatDynamic(sim, stats.SpellHitPercent, 100)
+		priest.AddStatDynamic(sim, stats.SpellCritPercent, -100)
+
+		mindFlay := priest.GetSpell(core.ActionID{SpellID: spellData.MindFlay.Highest().ID})
+		if !mindFlay.Cast(sim, priest.CurrentTarget) {
+			t.Fatal("Mind Flay did not cast")
+		}
+		metrics := &mindFlay.SpellMetrics[priest.CurrentTarget.UnitIndex]
+		for i := 0; i < 1000 && metrics.Ticks < 3; i++ {
+			sim.Step()
+		}
+		if metrics.Ticks != 3 {
+			t.Fatalf("%q: %d Mind Flay ticks, want 3", talents, metrics.Ticks)
+		}
+		return metrics.TotalDamage
+	}
+	plain, improved := channel("--00000001"), channel("--000000012")
+	if got, want := improved/plain, 3.64/3; !core.WithinToleranceFloat64(want, got, 1e-6) {
+		t.Errorf("a full channel with Improved Mind Flay deals %.4f x an untalented one, want %.4f", got, want)
+	}
+}

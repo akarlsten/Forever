@@ -188,9 +188,13 @@ func (priest *Priest) registerMindFlaySpell(rank *spelldata.Spell) {
 			OnTick: func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
 				growth := math.Pow(1+improvedStep, float64(ticksDealt))
 				ticksDealt++
+				// A tick reads the current multipliers (PeriodicDamageMultiplier) or, for a dot on stored
+				// numbers, the snapshot; the growth goes on both so either path takes it once.
 				dot.SnapshotAttackerMultiplier *= growth
+				dot.PeriodicDamageMultiplier *= growth
 				dot.CalcAndDealPeriodicSnapshotDamage(sim, target, priestTickOutcome(rank.PeriodicCanCrit(), dot))
 				dot.SnapshotAttackerMultiplier /= growth
+				dot.PeriodicDamageMultiplier /= growth
 				if int32(ticksDealt) == numTicks && priest.procDarkInspiration != nil {
 					priest.procDarkInspiration(sim)
 				}
