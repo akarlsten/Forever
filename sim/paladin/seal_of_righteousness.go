@@ -29,7 +29,8 @@ var sealOfRighteousnessProcIDs = map[int32]int32{1: 25742, 2: 25740, 3: 25739, 4
 // A two-hander's 1.2 lands on the spell power share as well: 0.185 x 1.2 = 0.222. Exordium (3.3 s
 // two-hander, no Holy points; foreverlogs 2693) hit for 17, and for 24-25 while their rank 2
 // Judgement of the Crusader (20188, +35 Holy taken) was up: +7.4 to +7.8 a hit, where 0.185 gives
-// 6.5. Their Judgement of Righteousness rose 17.9 on the same debuff, the 0.5 it should. Jack's ~3.4
+// 6.5. Their Judgement of Righteousness rose 17.9 on the same debuff, the 0.5 it had then (build
+// 70425 lowers the judgement to 0.429, which the store carries). Jack's ~3.4
 // two-hander (2670) also hit 25s on top of 16-18, the same step. No one-hander has been logged
 // under the debuff, so a one-hander keeps the bare 0.185 (Ms's 1.7 one-hander fits it).
 func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spell) {

@@ -235,9 +235,16 @@ func (paladin *Paladin) applyWeaponSpecialization(bonus float64, handType proto.
 	})
 }
 
-// Reckoning - Gives you a 8/16/24/32/40% chance to gain an extra attack after Blocking a melee
-// attack and a 20/40/60/80/100% chance to gain an extra attack after being the victim of a
-// non-periodic critical strike.
+// Reckoning (build 70425) - an 8/16/24/32/40% chance after Blocking, and 2.5 times that after being
+// critically hit, to store an extra attack (1326084, up to 4). The next main-hand swing (1326084's
+// proc flags 0x4, melee auto attacks; one charge) spends every stored attack at once. Only the block
+// half keeps the 1.5 s cooldown: "Cannot occur from Blocks more than once every 1.5 sec".
+//
+// Each stored attack is a free main-hand swing that leaves the swing timer alone, as the single extra
+// attack was in beta logs 2747-2749 (14 of 16 procs). Unverified for 70425: the stored attacks go off
+// right after the swing that spends them, and the crit half has no cooldown of its own. The release is
+// a proc trigger like the stores: swinging from a plain OnSpellHitDealt broke the multi-threaded
+// results' match with the single-threaded ones.
 func (paladin *Paladin) applyReckoning() {
 	if paladin.Talents.Reckoning == 0 {
 		return
@@ -245,17 +252,34 @@ func (paladin *Paladin) applyReckoning() {
 
 	blockChance := spellData.Reckoning.FractionAt(paladin.Talents.Reckoning)
 	critChance := blockChance * 2.5
+	stored := spellData.ReckoningTriggered.Highest()
 
-	// The extra attack (20178) is a free swing at once that leaves the swing timer alone: beta
-	// logs 2747-2749 (14 of 16 procs) put the next normal swing one weapon speed after the
-	// previous one. Client 70291+ gives 20177 a 1.5 s proc cooldown, shared by both triggers.
-	icd := core.Cooldown{Timer: paladin.NewTimer(), Duration: spellData.Reckoning.Highest().ICD()}
-	extraAttack := func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-		if !icd.IsReady(sim) {
-			return
+	paladin.ReckoningAura = paladin.RegisterAura(core.Aura{
+		Label:     "Reckoning",
+		ActionID:  core.ActionID{SpellID: stored.ID},
+		Duration:  core.NeverExpires,
+		MaxStacks: int32(stored.MaxStack),
+	})
+	paladin.MakeProcTriggerAura(core.ProcTrigger{
+		Name:     "Reckoning - Release" + paladin.Label,
+		Callback: core.CallbackOnSpellHitDealt,
+		ProcMask: core.ProcMaskMeleeMHAuto,
+		ExtraCondition: func(_ *core.Simulation, _ *core.Spell, _ *core.SpellResult) bool {
+			return paladin.ReckoningAura.IsActive()
+		},
+		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			attacks := paladin.ReckoningAura.GetStacks()
+			paladin.ReckoningAura.Deactivate(sim)
+			for range attacks {
+				paladin.AutoAttacks.InstantMHAttack(sim)
+			}
+		},
+	})
+	store := func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+		if !paladin.ReckoningAura.IsActive() {
+			paladin.ReckoningAura.Activate(sim)
 		}
-		icd.Use(sim)
-		paladin.AutoAttacks.InstantMHAttack(sim)
+		paladin.ReckoningAura.AddStack(sim)
 	}
 
 	paladin.MakeProcTriggerAura(core.ProcTrigger{
@@ -263,7 +287,8 @@ func (paladin *Paladin) applyReckoning() {
 		Callback:   core.CallbackOnSpellHitTaken,
 		Outcome:    core.OutcomeBlock,
 		ProcChance: blockChance,
-		Handler:    extraAttack,
+		ICD:        spellData.Reckoning.Highest().ICD(),
+		Handler:    store,
 	})
 
 	paladin.MakeProcTriggerAura(core.ProcTrigger{
@@ -271,7 +296,7 @@ func (paladin *Paladin) applyReckoning() {
 		Callback:   core.CallbackOnSpellHitTaken,
 		Outcome:    core.OutcomeCrit,
 		ProcChance: critChance,
-		Handler:    extraAttack,
+		Handler:    store,
 	})
 }
 

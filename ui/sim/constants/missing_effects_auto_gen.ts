@@ -6,7 +6,7 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 	[
 		647, // Destiny
 		[
-			"Increases Strength by 200 for 10s.", // 17152 - https://www.wowhead.com/forever/spell=17152
+			"Increases Strength by 200 for 12s.", // 17152 - https://www.wowhead.com/forever/spell=17152
 		]
 	],
 	[
@@ -24,7 +24,7 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 	[
 		809, // Bloodrazor
 		[
-			"Wounds the target causing them to bleed for 120 damage over 30s.", // 17504 - https://www.wowhead.com/forever/spell=17504
+			"Wounds the target causing them to bleed for 155 damage over 15s.", // 17504 - https://www.wowhead.com/forever/spell=17504
 		]
 	],
 	[
@@ -36,7 +36,13 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 	[
 		811, // Axe of the Deep Woods
 		[
-			"Blasts a target for 108 Nature damage.", // 18104 - https://www.wowhead.com/forever/spell=18104
+			"Blasts a target for 126 Nature damage.", // 18104 - https://www.wowhead.com/forever/spell=18104
+		]
+	],
+	[
+		867, // Gloves of Holy Might
+		[
+			"Smite your target for 112 Holy damage. Damage is tripled against Undead.", // 1325229 - https://www.wowhead.com/forever/spell=1325229
 		]
 	],
 	[
@@ -48,7 +54,7 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 	[
 		870, // Fiery War Axe
 		[
-			"Hurls a fiery ball that causes 176 Fire damage and an additional 24 damage over 6s.", // 18796 - https://www.wowhead.com/forever/spell=18796
+			"Hurls a fiery ball that causes 262 Fire damage and an additional 60 damage over 6s.", // 18796 - https://www.wowhead.com/forever/spell=18796
 		]
 	],
 	[
@@ -76,21 +82,21 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		940, // Robes of Insight
-		[
-			"Reduces the cost of your next spell cast within 10s by up to 500 mana.", // 18820 - https://www.wowhead.com/forever/spell=18820
-		]
-	],
-	[
 		1168, // Skullflame Shield
 		[
 			"When struck in combat has a 2% chance of dealing 115 Fire damage to all targets around you.", // 18818 - https://www.wowhead.com/forever/spell=18818
 		]
 	],
 	[
+		1204, // The Green Tower
+		[
+			"When struck in combat, inflicts 3 Physical damage to the attacker.", // 1325228 - https://www.wowhead.com/forever/spell=1325228
+		]
+	],
+	[
 		1263, // Brain Hacker
 		[
-			"Wounds the target's head, dealing 250 Physical damage, and increasing the casting time of all spells by 60% for 30s.", // 17148 - https://www.wowhead.com/forever/spell=17148
+			"Wounds the target's head, dealing 250 Physical damage, and increasing the casting time of all spells by 30% for 30s.", // 17148 - https://www.wowhead.com/forever/spell=17148
 		]
 	],
 	[
@@ -168,7 +174,7 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 	[
 		1982, // Nightblade
 		[
-			"Sends a shadowy bolt at the enemy causing 200 Shadow damage.", // 18211 - https://www.wowhead.com/forever/spell=18211
+			"Sends a shadowy bolt at the enemy causing 231 Shadow damage.", // 18211 - https://www.wowhead.com/forever/spell=18211
 		]
 	],
 	[
@@ -204,7 +210,7 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 	[
 		2164, // Gut Ripper
 		[
-			"Wounds the target for 108 damage.", // 18107 - https://www.wowhead.com/forever/spell=18107
+			"Delivers a fatal wound for 105 Physical damage. Deals 100% increased damage to targets below 25% health", // 18107 - https://www.wowhead.com/forever/spell=18107
 		]
 	],
 	[
@@ -240,7 +246,7 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 	[
 		2291, // Kang the Decapitator
 		[
-			"Wounds the target causing them to bleed for 560 damage over 30s.", // 17153 - https://www.wowhead.com/forever/spell=17153
+			"Wounds the target causing them to bleed for 500 damage over 15s.", // 17153 - https://www.wowhead.com/forever/spell=17153
 		]
 	],
 	[
@@ -270,7 +276,7 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 	[
 		2915, // Taran Icebreaker
 		[
-			"Hurls a fiery ball that causes 200 Fire damage and an additional 36 damage over 8s.", // 16415 - https://www.wowhead.com/forever/spell=16415
+			"Hurls a fiery ball that causes 300 Fire damage and an additional 100 damage over 8s.", // 16415 - https://www.wowhead.com/forever/spell=16415
 		]
 	],
 	[
@@ -312,7 +318,7 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 	[
 		3475, // Cloak of Flames
 		[
-			"Deals 5 Fire damage to anyone who strikes you with a melee attack.", // 21142 - https://www.wowhead.com/forever/spell=21142
+			"Deals 7 Fire damage to anyone who strikes you with a melee attack.", // 21142 - https://www.wowhead.com/forever/spell=21142
 		]
 	],
 	[
@@ -373,12 +379,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		4984, // Skull of Impending Doom
 		[
 			"Increase your run speed by 60% for 10s, but deals 300 damage and drains 300 mana every 2 seconds.", // 5024 - https://www.wowhead.com/forever/spell=5024
-		]
-	],
-	[
-		5028, // Lord Sakrasis' Scepter
-		[
-			"Smite your target with the power of the holy spring, inflicting 56 Holy damage.", // 1312330 - https://www.wowhead.com/forever/spell=1312330
 		]
 	],
 	[
@@ -1280,7 +1280,7 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 	[
 		13053, // Doombringer
 		[
-			"Sends a shadowy bolt at the enemy causing 200 Shadow damage.", // 18211 - https://www.wowhead.com/forever/spell=18211
+			"Sends a shadowy bolt at the enemy causing 231 Shadow damage.", // 18211 - https://www.wowhead.com/forever/spell=18211
 		]
 	],
 	[
@@ -2033,7 +2033,7 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 	[
 		19170, // Ebon Hand
 		[
-			"Sends a shadowy bolt at the enemy causing 200 Shadow damage.", // 18211 - https://www.wowhead.com/forever/spell=18211
+			"Sends a shadowy bolt at the enemy causing 231 Shadow damage.", // 18211 - https://www.wowhead.com/forever/spell=18211
 		]
 	],
 	[
@@ -4006,12 +4006,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		249396, // Mystic Mushroom
-		[
-			"Increases Spirit by 5%.", // 1248751 - https://www.wowhead.com/forever/spell=1248751
-		]
-	],
-	[
 		249398, // Polished Driftwood Icon
 		[
 			"Allows 8% of your Mana regeneration to continue while casting.", // 1248756 - https://www.wowhead.com/forever/spell=1248756
@@ -4123,7 +4117,7 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 	[
 		272427, // Howling Idol
 		[
-			"Reduces the cooldown of your Shifting Power ability by 1 sec.", // 1291059 - https://www.wowhead.com/forever/spell=1291059
+			"Reduces the cooldown of your Shifting Power ability by 0.5 sec.", // 1291059 - https://www.wowhead.com/forever/spell=1291059
 		]
 	],
 	[
@@ -4700,7 +4694,7 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 	[
 		279251, // Idol of the Ursine Twins
 		[
-			"Your Lacerate hits have a 10% chance to reset the cooldown on Mangle (Bear).", // 1306483 - https://www.wowhead.com/forever/spell=1306483
+			"Your Lacerate hits have a 10% chance to reset the cooldown on Primal Bite.", // 1306483 - https://www.wowhead.com/forever/spell=1306483
 		]
 	],
 	[
@@ -4821,6 +4815,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		286556, // Winds of Tanaris
 		[
 			"Slows nearby enemies by 50% for 10s, increased to 80% in Desert areas.", // 1320579 - https://www.wowhead.com/forever/spell=1320579
+		]
+	],
+	[
+		286982, // Unearthed Barrier
+		[
+			"Deals 22 Nature damage every time you block. Damage is doubled in swamps.", // 1324685 - https://www.wowhead.com/forever/spell=1324685
 		]
 	],
 ])

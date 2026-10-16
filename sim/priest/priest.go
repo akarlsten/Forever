@@ -7,7 +7,7 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-var TalentTreeSizes = [3]int{18, 17, 18}
+var TalentTreeSizes = [3]int{18, 17, 17}
 
 type Priest struct {
 	core.Character
@@ -30,6 +30,10 @@ type Priest struct {
 
 	// Every Holy Fire rank the priest knows, so Power in Light can ask whether its dot is running.
 	HolyFire []*core.Spell
+
+	// Dark Inspiration's party buff, cast on a Mind Blast or a fully channeled Mind Flay; nil
+	// without the talent.
+	procDarkInspiration func(sim *core.Simulation)
 }
 
 type SelfBuffs struct {

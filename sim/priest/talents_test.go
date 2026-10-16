@@ -38,8 +38,8 @@ func penanceCost(t *testing.T, talents string) float64 {
 
 // Improved Healing 3/3 takes 15% off Penance.
 func TestImprovedHealingDiscountsPenance(t *testing.T) {
-	base := penanceCost(t, "504020031305001-13505100202-50002")
-	discounted := penanceCost(t, "504020031305001-13505100032-50002")
+	base := penanceCost(t, "504025031030001-13505100202-50002")
+	discounted := penanceCost(t, "504025031030001-13505100032-50002")
 	if !core.WithinToleranceFloat64(base*0.85, discounted, 1e-6) {
 		t.Errorf("Penance costs %v with Improved Healing 3, %v without; want 15%% off", discounted, base)
 	}
@@ -256,7 +256,7 @@ func TestPowerInfusionKeepsShadowform(t *testing.T) {
 		Class:         proto.Class_ClassPriest,
 		Equipment:     &proto.EquipmentSpec{},
 		Consumables:   &proto.ConsumesSpec{},
-		TalentsString: "000000000000000001--000000000000000001", // Power Infusion + Shadowform
+		TalentsString: "000000000000000001--00000000000000001", // Power Infusion + Shadowform
 		Rotation:      &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
 	}, &proto.Player_DpsPriest{DpsPriest: &proto.DpsPriest{Options: &proto.DpsPriest_Options{ClassOptions: &proto.PriestOptions{}}}})
 	sim := core.NewSim(&proto.RaidSimRequest{
@@ -337,5 +337,95 @@ func TestShadowWeavingStacksPerTarget(t *testing.T) {
 		if result.Damage < c.want-1e-9 || result.Damage > c.want+1e-9 {
 			t.Errorf("Mind Blast on %s: %.2f, want %.2f", c.target.Label, result.Damage, c.want)
 		}
+	}
+}
+
+// Dark Inspiration 5/5 (build 70425): Mind Blast and a full Mind Flay channel give 15% Spirit for 10 sec.
+func TestDarkInspirationRaisesSpirit(t *testing.T) {
+	for _, spellName := range []string{"Mind Blast", "Mind Flay"} {
+		player := core.WithSpec(&proto.Player{
+			Race:          proto.Race_RaceUndead,
+			Class:         proto.Class_ClassPriest,
+			Equipment:     &proto.EquipmentSpec{},
+			Consumables:   &proto.ConsumesSpec{},
+			TalentsString: "--0000000105",
+			Rotation:      &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
+		}, &proto.Player_DpsPriest{DpsPriest: &proto.DpsPriest{Options: &proto.DpsPriest_Options{ClassOptions: &proto.PriestOptions{}}}})
+		sim := core.NewSim(&proto.RaidSimRequest{
+			SimOptions: &proto.SimOptions{RandomSeed: 100},
+			Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+			Encounter:  core.MakeSingleTargetEncounter(0),
+		}, simsignals.CreateSignals())
+		sim.Reset()
+		priest := sim.Raid.Parties[0].Players[0].(PriestAgent).GetPriest()
+		aura := priest.GetAura("Dark Inspiration - " + priest.Label)
+		if aura == nil {
+			t.Fatal("no Dark Inspiration aura on the priest")
+		}
+		if aura.Duration.Seconds() != 10 {
+			t.Errorf("Dark Inspiration lasts %v, want 10s", aura.Duration)
+		}
+
+		spellID := spellData.MindBlast.Highest().ID
+		if spellName == "Mind Flay" {
+			spellID = spellData.MindFlay.Highest().ID
+		}
+		spell := priest.GetSpell(core.ActionID{SpellID: spellID})
+		priest.AddStatDynamic(sim, stats.SpellHitPercent, 100)
+		before := priest.GetStat(stats.Spirit)
+		if !spell.Cast(sim, priest.CurrentTarget) {
+			t.Fatalf("%s did not cast", spellName)
+		}
+		for i := 0; i < 1000 && !aura.IsActive(); i++ {
+			sim.Step()
+		}
+		if !aura.IsActive() {
+			t.Fatalf("%s gave no Dark Inspiration", spellName)
+		}
+		if got, want := priest.GetStat(stats.Spirit), before*1.15; !core.WithinToleranceFloat64(want, got, 1) {
+			t.Errorf("%s: Spirit %v with Dark Inspiration, want %v", spellName, got, want)
+		}
+	}
+}
+
+// Improved Mind Flay 2/2 (build 70425): each tick deals 20% more than the one before, so a full channel
+// deals 1 + 1.2 + 1.44 = 3.64 ticks' worth where an untalented one deals 3. The ticks read the caster's
+// current multipliers, so the growth has to reach that path, not only the snapshot.
+func TestImprovedMindFlayTicksGrow(t *testing.T) {
+	channel := func(talents string) float64 {
+		player := core.WithSpec(&proto.Player{
+			Race:          proto.Race_RaceUndead,
+			Class:         proto.Class_ClassPriest,
+			Equipment:     &proto.EquipmentSpec{},
+			Consumables:   &proto.ConsumesSpec{},
+			TalentsString: talents,
+			Rotation:      &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
+		}, &proto.Player_DpsPriest{DpsPriest: &proto.DpsPriest{Options: &proto.DpsPriest_Options{ClassOptions: &proto.PriestOptions{}}}})
+		sim := core.NewSim(&proto.RaidSimRequest{
+			SimOptions: &proto.SimOptions{RandomSeed: 100},
+			Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+			Encounter:  core.MakeSingleTargetEncounter(0),
+		}, simsignals.CreateSignals())
+		sim.Reset()
+		priest := sim.Raid.Parties[0].Players[0].(PriestAgent).GetPriest()
+		priest.AddStatDynamic(sim, stats.SpellHitPercent, 100)
+		priest.AddStatDynamic(sim, stats.SpellCritPercent, -100)
+
+		mindFlay := priest.GetSpell(core.ActionID{SpellID: spellData.MindFlay.Highest().ID})
+		if !mindFlay.Cast(sim, priest.CurrentTarget) {
+			t.Fatal("Mind Flay did not cast")
+		}
+		metrics := &mindFlay.SpellMetrics[priest.CurrentTarget.UnitIndex]
+		for i := 0; i < 1000 && metrics.Ticks < 3; i++ {
+			sim.Step()
+		}
+		if metrics.Ticks != 3 {
+			t.Fatalf("%q: %d Mind Flay ticks, want 3", talents, metrics.Ticks)
+		}
+		return metrics.TotalDamage
+	}
+	plain, improved := channel("--00000001"), channel("--000000012")
+	if got, want := improved/plain, 3.64/3; !core.WithinToleranceFloat64(want, got, 1e-6) {
+		t.Errorf("a full channel with Improved Mind Flay deals %.4f x an untalented one, want %.4f", got, want)
 	}
 }

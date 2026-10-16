@@ -323,7 +323,8 @@ func (hp *HunterPet) newPetBleed(rank *spelldata.Spell) *core.Spell {
 
 // Pinch (Crab, skill line 214), Dismember (Crocolisk, 212) and Mine! (Owl, 655) are new in Forever: a
 // single melee hit with the damage, focus cost and cooldown read off the client row (rank 5: Pinch 95
-// for 50 focus on 30 sec, Dismember 54 for 35 focus on 6 sec, Mine! 44 for 20 focus on 1 min). Pinch's
+// for 50 focus on 30 sec, Dismember 54 for 35 focus on 15 sec, Mine! 44 for 20 focus on 90 sec, the
+// build 70425 cooldowns). Pinch's
 // snare, Dismember's healing reduction and Mine!'s disarm are left out. Beta logs: Consumer's crab (foreverlogs 2674) landed rank 1 Pinch (20)
 // 17 times at ~17 a hit through level 20 mob armor, so no attack power share.
 func (hp *HunterPet) newPetStrike(rank *spelldata.Spell) *core.Spell {

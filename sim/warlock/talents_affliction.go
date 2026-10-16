@@ -15,7 +15,7 @@ func (warlock *Warlock) registerAfflictionTalents() {
 	warlock.applyImprovedCorruption()
 
 	// Tier 2
-	warlock.applyMalediction()
+	warlock.applyGrimReach()
 	warlock.applySoulHarvesting()
 	warlock.applyImprovedDrains()
 
@@ -39,6 +39,19 @@ func (warlock *Warlock) registerAfflictionTalents() {
 
 	// Tier 7
 	// Wrack: wrack.go
+}
+
+// Grim Reach (18218, back in build 70425 on the node Malediction held): 10/20% more range on the
+// Affliction spells its mask names, the curses and banes among them.
+func (warlock *Warlock) applyGrimReach() {
+	if warlock.Talents.GrimReach == 0 {
+		return
+	}
+
+	share := spellData.GrimReach.Effect(dbcenums.A_ADD_PCT_MODIFIER, int32(dbcenums.SPELLMOD_RANGE)).FractionAt(warlock.Talents.GrimReach)
+	warlock.extendRange(WarlockSpellCorruption|WarlockSpellCurseOfAgony|WarlockSpellCurseOfDoom|WarlockSpellCurseOfElements|
+		WarlockSpellCurseOfWeakness|WarlockSpellCurseOfRecklessness|WarlockSpellSiphonLife|WarlockSpellDrainLife|
+		WarlockSpellDrainSoul|WarlockSpellDeathCoil|WarlockSpellWrack, share)
 }
 
 // 1% hit a point on every school the warlock casts (A_MOD_SPELL_HIT_CHANCE with no family
@@ -73,26 +86,6 @@ func (warlock *Warlock) applyImprovedCorruption() {
 		Kind:       core.SpellMod_DotDamageDone_Pct,
 		FloatValue: spellData.ImprovedCorruption.Effect(dbcenums.A_ADD_PCT_MODIFIER, int32(dbcenums.SPELLMOD_DOT)).FractionAt(points),
 		ClassMask:  WarlockSpellCorruption,
-	})
-}
-
-// Forever moved Malediction off the curse: the beta client's 1225177 is a flat 1% a point on the
-// warlock's own damage and dot damage, not a bonus on Curse of the Elements.
-func (warlock *Warlock) applyMalediction() {
-	if warlock.Talents.Malediction == 0 {
-		return
-	}
-
-	// Periodic damage only ("Increases all periodic damage done"). The row also states the same
-	// value on op 0, but a tick already takes DamageDone, so taking both would count it twice.
-	// Hellfire's area hits are Hellfire Effect (11682), a direct School Damage effect, so in the
-	// client the dot modifier only reached the self-burn. Dev AidanZMoon called that a bug, 'Fixed
-	// in next build' (forever-bugs #311, 2026-10-13), so the area hits take it too.
-	points := warlock.Talents.Malediction
-	warlock.AddStaticMod(core.SpellModConfig{
-		Kind:       core.SpellMod_DotDamageDone_Pct,
-		FloatValue: spellData.Malediction.Effect(dbcenums.A_ADD_PCT_MODIFIER, int32(dbcenums.SPELLMOD_DOT)).FractionAt(points),
-		ClassMask:  WarlockSpellAll,
 	})
 }
 

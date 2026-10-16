@@ -45,11 +45,11 @@ func (hunter *Hunter) registerEfficiency() {
 		return
 	}
 
-	// The tooltip reads "Shots, Stings and melee abilities", but 19416's class mask leaves out
-	// Sniper Shot and Strider Kick.
+	// The tooltip reads "Shots, Stings and melee abilities". Build 70425 added Sniper Shot to 19416's
+	// class mask (word 3, 0x800000); Strider Kick is still left out.
 	hunter.AddStaticMod(core.SpellModConfig{
 		Kind:       core.SpellMod_PowerCost_Pct_Add,
-		ClassMask:  HunterSpellsShotsAndStings | HunterSpellsMelee&^HunterSpellStriderKick,
+		ClassMask:  HunterSpellsShotsAndStings | HunterSpellSniperShot | HunterSpellsMelee&^HunterSpellStriderKick,
 		FloatValue: spellData.Efficiency.Effect(dbcenums.A_ADD_PCT_MODIFIER, int32(dbcenums.SPELLMOD_COST)).FractionAt(hunter.Talents.Efficiency),
 	})
 }
@@ -87,8 +87,8 @@ func (hunter *Hunter) registerMortalShots() {
 		return
 	}
 
-	// Client 19485's class mask: Auto Shot, Aimed, Arcane and Multi-Shot, Serpent Sting and Volley.
-	// Not Sniper Shot (its bit sits in mask word 3, which the mod leaves empty).
+	// Client 19485's class mask: Auto Shot, Aimed, Arcane and Multi-Shot, Serpent Sting and Volley,
+	// and since build 70425 Sniper Shot (mask word 3, 0x800000).
 	bonus := spellData.MortalShots.FractionAt(hunter.Talents.MortalShots)
 	hunter.AddStaticMod(core.SpellModConfig{
 		Kind:       core.SpellMod_CritMultiplier_Flat,
@@ -97,7 +97,7 @@ func (hunter *Hunter) registerMortalShots() {
 	})
 	hunter.AddStaticMod(core.SpellModConfig{
 		Kind:       core.SpellMod_CritMultiplier_Flat,
-		ClassMask:  HunterSpellAimedShot | HunterSpellArcaneShot | HunterSpellMultiShot | HunterSpellSerpentSting | HunterSpellVolley,
+		ClassMask:  HunterSpellAimedShot | HunterSpellArcaneShot | HunterSpellMultiShot | HunterSpellSerpentSting | HunterSpellVolley | HunterSpellSniperShot,
 		FloatValue: bonus,
 	})
 }

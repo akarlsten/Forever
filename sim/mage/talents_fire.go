@@ -9,7 +9,7 @@ import (
 
 func (mage *Mage) registerFireTalents() {
 	// Tier 1
-	mage.registerWakeOfFire()
+	mage.registerImprovedFireBlast()
 	mage.registerIncineration()
 	mage.registerImprovedFireball()
 
@@ -40,17 +40,22 @@ func (mage *Mage) registerFireTalents() {
 	// Combustion: combustion.go
 }
 
-// The Fire Blast cooldown half only. The other half, 1312934 (+50% Fire Blast crit for 30 sec), is
-// granted by killing a non-trivial target, which the sim's targets never do.
-func (mage *Mage) registerWakeOfFire() {
-	if mage.Talents.WakeOfFire == 0 {
+// Improved Fire Blast (11078, Wake of Fire before build 70425): -1/-2 sec on Fire Blast's cooldown and,
+// since 70425, +8/15 yards of range in place of Wake of Fire's crit-on-kill buff.
+func (mage *Mage) registerImprovedFireBlast() {
+	if mage.Talents.ImprovedFireBlast == 0 {
 		return
 	}
 
 	mage.AddStaticMod(core.SpellModConfig{
 		ClassMask: MageSpellFireBlast,
-		TimeValue: time.Millisecond * time.Duration(spellData.WakeOfFire.Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_COOLDOWN)).ValueAt(mage.Talents.WakeOfFire)),
+		TimeValue: time.Millisecond * time.Duration(spellData.ImprovedFireBlast.Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_COOLDOWN)).ValueAt(mage.Talents.ImprovedFireBlast)),
 		Kind:      core.SpellMod_Cooldown_Flat,
+	})
+	mage.AddStaticMod(core.SpellModConfig{
+		ClassMask:  MageSpellFireBlast,
+		FloatValue: spellData.ImprovedFireBlast.Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_RANGE)).ValueAt(mage.Talents.ImprovedFireBlast),
+		Kind:       core.SpellMod_Range_Flat,
 	})
 }
 
@@ -253,6 +258,20 @@ func (mage *Mage) registerHotStreak() {
 			mage.HotStreakAura.AddStack(sim)
 		},
 	})
+
+	// Build 70425: "Fire Blast grants an additional stack every time it deals damage", so a Fire Blast
+	// hit is one stack and a Fire Blast crit two.
+	mage.MakeProcTriggerAura(core.ProcTrigger{
+		Name:               "Hot Streak Fire Blast",
+		Callback:           core.CallbackOnSpellHitDealt,
+		ClassSpellMask:     MageSpellFireBlast,
+		Outcome:            core.OutcomeLanded,
+		TriggerImmediately: true,
+		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			mage.HotStreakAura.Activate(sim)
+			mage.HotStreakAura.AddStack(sim)
+		},
+	})
 }
 
 func (mage *Mage) registerMasterOfElements() {
@@ -293,16 +312,48 @@ func (mage *Mage) registerCriticalMass() {
 	})
 }
 
-// Ignite is left out by its NoSpellMods flag.
+// Fire Power (11124, build 70425): Fire spells deal 1/2/3% more damage for each of the mage's own Fire
+// effects on the target, up to four. Mixed-school effects (Frostfire Bolt's) do not count. The sim's
+// Fire effects on a target are the pure Fire dots (Ignite, Fireball, Pyroblast, Flamestrike) and
+// Improved Scorch's Fire Vulnerability, which the sim keeps on the mage. Ignite takes no modifiers.
 func (mage *Mage) registerFirePower() {
 	if mage.Talents.FirePower == 0 {
 		return
 	}
 
-	mage.AddStaticMod(core.SpellModConfig{
-		ClassMask:  MageSpellsAll,
-		School:     core.SpellSchoolFire,
-		FloatValue: spellData.FirePower.Effect(dbcenums.A_ADD_PCT_MODIFIER, int32(dbcenums.SPELLMOD_DAMAGE)).FractionAt(mage.Talents.FirePower),
-		Kind:       core.SpellMod_DamageDone_Flat,
+	const maxEffects = 4
+	perEffect := spellData.FirePower.EffectAt(1).FractionAt(mage.Talents.FirePower)
+
+	var fireDots []*core.Spell
+	mage.OnSpellRegistered(func(spell *core.Spell) {
+		if spell.SpellSchool == core.SpellSchoolFire && spell.Matches(MageSpellsAll) {
+			fireDots = append(fireDots, spell)
+		}
+	})
+
+	fireEffectsOn := func(target *core.Unit) int {
+		n := 0
+		for _, spell := range fireDots {
+			if dot := spell.Dot(target); dot != nil && dot.IsActive() {
+				n++
+			} else if dot := spell.AOEDot(); dot != nil && dot.IsActive() {
+				n++
+			}
+		}
+		if mage.ImprovedScorchAura != nil && mage.ImprovedScorchAura.IsActive() {
+			n++
+		}
+		return min(n, maxEffects)
+	}
+
+	mage.Env.RegisterPostFinalizeEffect(func() {
+		for _, target := range mage.Env.Encounter.AllTargetUnits {
+			mage.AttackTables[target.UnitIndex].DamageDoneByCasterMultiplier = func(_ *core.Simulation, spell *core.Spell, at *core.AttackTable) float64 {
+				if spell.SpellSchool != core.SpellSchoolFire || !spell.Matches(MageSpellsAll) || spell.Flags.Matches(core.SpellFlagNoSpellMods) {
+					return 1
+				}
+				return 1 + perEffect*float64(fireEffectsOn(at.Defender))
+			}
+		}
 	})
 }

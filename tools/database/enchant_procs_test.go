@@ -156,8 +156,9 @@ func TestEnchantPercentStatBuffIsTheAppliedSpell(t *testing.T) {
 	}
 
 	buff := spelldata.Find(1299796)
-	if e := buff.FirstAura(dbcenums.A_MOD_PERCENT_STAT); e == spelldata.NilEffect || e.Misc != 4 || e.BasePoints != 100 {
-		t.Errorf("1299796 states %+v, want A_MOD_PERCENT_STAT on client stat 4 (Spirit) at 100%%", e)
+	// Build 70425 moved it to A_MOD_TOTAL_STAT_PERCENTAGE with Spirit as bit 4 of the stat mask.
+	if e := buff.FirstAura(dbcenums.A_MOD_TOTAL_STAT_PERCENTAGE); e == spelldata.NilEffect || e.Misc2 != 1<<4 || e.BasePoints != 100 {
+		t.Errorf("1299796 states %+v, want A_MOD_TOTAL_STAT_PERCENTAGE on the Spirit bit (16) at 100%%", e)
 	}
 }
 

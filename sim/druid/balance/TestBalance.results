@@ -644,6 +644,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-LordSakrasis'Scepter-5028"
+ value: {
+  dps: 188.23633
+  tps: 98.86063
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-Magister'sRegalia"
  value: {
   dps: 240.75939
@@ -721,6 +728,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-MysticMushroom-249396"
+ value: {
+  dps: 187.86934
+  tps: 98.35751
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-Naglering-11669"
  value: {
   dps: 186.69889
@@ -779,8 +793,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-RingofSaviors-1447"
  value: {
-  dps: 187.86934
-  tps: 98.35751
+  dps: 186.69889
+  tps: 97.79218
  }
 }
 dps_results: {
@@ -1143,43 +1157,43 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-Tauren-Naked-Standard-launch-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 1912.73385
-  tps: 1001.81181
+  dps: 1875.80234
+  tps: 983.38759
  }
 }
 dps_results: {
  key: "TestBalance-Settings-Tauren-Naked-Standard-launch-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 184.83817
-  tps: 96.93779
+  dps: 184.94195
+  tps: 96.95586
  }
 }
 dps_results: {
  key: "TestBalance-Settings-Tauren-Naked-Standard-launch-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 190.86512
-  tps: 99.89099
+  dps: 189.57197
+  tps: 99.20818
  }
 }
 dps_results: {
  key: "TestBalance-Settings-Tauren-Naked-Standard-launch-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 861.08259
-  tps: 602.75781
+  dps: 853.3007
+  tps: 597.31049
  }
 }
 dps_results: {
  key: "TestBalance-Settings-Tauren-Naked-Standard-launch-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 65.02732
-  tps: 45.51912
+  dps: 64.74174
+  tps: 45.31921
  }
 }
 dps_results: {
  key: "TestBalance-Settings-Tauren-Naked-Standard-launch-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 141.00746
-  tps: 98.70522
+  dps: 140.11612
+  tps: 98.08128
  }
 }
 dps_results: {

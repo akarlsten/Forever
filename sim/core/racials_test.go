@@ -152,10 +152,10 @@ func TestGnomeWarrior(t *testing.T) {
 
 	castRacial(t, sim, fw, 1259813)
 	eureka := fw.GetAura("Eureka!")
-	if !eureka.IsActive() || eureka.GetStacks() != 3 {
-		t.Fatalf("Eureka! should start at 3 charges, got %d", eureka.GetStacks())
+	// Build 70425: no charges, 8 sec.
+	if !eureka.IsActive() || eureka.Duration != 8*time.Second {
+		t.Fatalf("Eureka! active %v for %v, want active for 8s", eureka.IsActive(), eureka.Duration)
 	}
-
 
 	ability := fw.RegisterSpell(SpellConfig{
 		ActionID:         ActionID{SpellID: 78},
@@ -179,11 +179,11 @@ func TestGnomeWarrior(t *testing.T) {
 		DamageMultiplier: 1,
 	})
 	rend.Cast(sim, fw.CurrentTarget)
-	if rend.DamageMultiplier != 1 || eureka.GetStacks() != 3 {
+	if rend.DamageMultiplier != 1 {
 		t.Fatalf("Eureka! should leave Rend alone since build 70170 (non-periodic abilities only)")
 	}
 	itemSpell.Cast(sim, fw.CurrentTarget)
-	if itemSpell.DamageMultiplier != 1 || eureka.GetStacks() != 3 {
+	if itemSpell.DamageMultiplier != 1 {
 		t.Fatalf("Eureka! should ignore spells that are not class abilities")
 	}
 	if !WithinToleranceFloat64(1.1, ability.DamageMultiplier, 0.0001) {
@@ -200,9 +200,10 @@ func TestGnomeWarrior(t *testing.T) {
 	for range 3 {
 		ability.Cast(sim, fw.CurrentTarget)
 	}
-	if eureka.IsActive() {
-		t.Fatalf("Eureka! should end after 3 abilities")
+	if !eureka.IsActive() {
+		t.Fatalf("Eureka! has no charges since build 70425, so abilities should not end it")
 	}
+	eureka.Deactivate(sim)
 	if !WithinToleranceFloat64(1, ability.DamageMultiplier, 0.0001) {
 		t.Fatalf("Eureka! should drop its damage bonus when it ends, got x%0.2f", ability.DamageMultiplier)
 	}
@@ -215,8 +216,11 @@ func TestTaurenEndurance(t *testing.T) {
 	_, human := setupRacialSim(proto.Race_RaceHuman)
 	_, tauren := setupRacialSim(proto.Race_RaceTauren)
 
-	if !WithinToleranceFloat64(human.GetStat(stats.PhysicalHitPercent)+1, tauren.GetStat(stats.PhysicalHitPercent), 0.0001) {
-		t.Fatalf("Endurance should grant 1%% hit")
+	if human.GetStat(stats.PhysicalHitPercent) != tauren.GetStat(stats.PhysicalHitPercent) {
+		t.Errorf("Endurance no longer grants hit (build 70425)")
+	}
+	if mh := tauren.AutoAttacks.MHAuto().CritMultiplierAdditive; !WithinToleranceFloat64(0.02, mh, 1e-9) {
+		t.Errorf("Endurance should grant 2%% crit damage, got %.3f", mh)
 	}
 }
 
@@ -224,7 +228,7 @@ func TestTouchOfTheGraveUsesTheMeleeVariant(t *testing.T) {
 	_, fw := setupRacialSim(proto.Race_RaceUndead)
 
 	if aura := fw.GetAura("Touch of the Grave"); aura == nil || aura.ActionIDForProc.SpellID != 1260189 {
-		t.Fatalf("An undead warrior should carry the 5%% Touch of the Grave")
+		t.Fatalf("An undead warrior should carry the 20%% Touch of the Grave")
 	} else if aura.OnSpellHitDealt == nil {
 		t.Fatalf("Touch of the Grave listens for no hit, so it never procs")
 	}
@@ -240,8 +244,8 @@ func TestSkyborneRacials(t *testing.T) {
 		_, fw := setupRacialSim(race)
 
 		swingRatio := human.AutoAttacks.MainhandSwingSpeed().Seconds() / fw.AutoAttacks.MainhandSwingSpeed().Seconds()
-		if !WithinToleranceFloat64(1.01, swingRatio, 0.001) {
-			t.Errorf("%s: Wind Blessed should swing 1%% faster, got x%0.4f", race, swingRatio)
+		if !WithinToleranceFloat64(1.03, swingRatio, 0.001) {
+			t.Errorf("%s: Wind Blessed should swing 3%% faster, got x%0.4f", race, swingRatio)
 		}
 		if at := fw.AttackTables[fw.CurrentTarget.UnitIndex]; !WithinToleranceFloat64(1.05, at.DamageDealtMultiplier, 0.0001) {
 			t.Errorf("%s: Elemental Insight should grant 5%% damage against elementals, got x%0.4f", race, at.DamageDealtMultiplier)
@@ -334,9 +338,9 @@ func TestBloodFuryReportsItsTemporaryStats(t *testing.T) {
 	}
 }
 
-// Sword Specialization crits only the hand holding the sword and never ranged attacks: the client's
-// crit aura carries a weapon requirement (forever-bugs #91, an axe orc's auto shots never crit).
-func TestSwordSpecializationFollowsTheSword(t *testing.T) {
+// Build 70425: Ruthless (human, was Sword Specialization) is 2% crit on everything whatever the weapon,
+// and Earth Fury (dwarf, was Mace Specialization) is +2% crit damage whatever the weapon.
+func TestRacialCritAndEarthFuryIgnoreTheWeapon(t *testing.T) {
 	const maceID, swordID int32 = 991101, 991102
 	oneHander := func(id int32, weaponType proto.WeaponType) *proto.SimItem {
 		return &proto.SimItem{
@@ -354,7 +358,7 @@ func TestSwordSpecializationFollowsTheSword(t *testing.T) {
 		oneHander(swordID, proto.WeaponType_WeaponTypeSword),
 	}})
 
-	setup := func(mainHand, offHand int32) *FakeRageWarrior {
+	setup := func(race proto.Race, mainHand, offHand int32) *FakeRageWarrior {
 		items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotOffHand+1)
 		for i := range items {
 			items[i] = &proto.ItemSpec{}
@@ -367,7 +371,7 @@ func TestSwordSpecializationFollowsTheSword(t *testing.T) {
 				Players: []*proto.Player{{
 					Name:      "Warrior",
 					Class:     proto.Class_ClassWarrior,
-					Race:      proto.Race_RaceHuman,
+					Race:      race,
 					Buffs:     &proto.IndividualBuffs{},
 					Spec:      &proto.Player_DpsWarrior{},
 					Equipment: &proto.EquipmentSpec{Items: items},
@@ -381,23 +385,29 @@ func TestSwordSpecializationFollowsTheSword(t *testing.T) {
 		return sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
 	}
 
-	maces := setup(maceID, maceID)
-	swordOH := setup(maceID, swordID)
-	swordMH := setup(swordID, maceID)
-
-	if got, want := swordOH.GetStat(stats.PhysicalCritPercent), maces.GetStat(stats.PhysicalCritPercent); got != want {
-		t.Errorf("physical crit (ranged attacks read it) with a sword %.2f, without %.2f, want equal", got, want)
-	}
-	if got, want := swordOH.GetStat(stats.SpellCritPercent), maces.GetStat(stats.SpellCritPercent)+2; got != want {
-		t.Errorf("spell crit with a sword %.2f, want %.2f", got, want)
-	}
+	maces := setup(proto.Race_RaceHuman, maceID, maceID)
+	swords := setup(proto.Race_RaceHuman, swordID, swordID)
 	for _, c := range []struct {
-		name   string
-		fw     *FakeRageWarrior
-		mh, oh float64
-	}{{"maces", maces, 0, 0}, {"sword off hand", swordOH, 0, 2}, {"sword main hand", swordMH, 2, 0}} {
-		if mh, oh := c.fw.AutoAttacks.MHAuto().BonusCritPercent, c.fw.AutoAttacks.OHAuto().BonusCritPercent; mh != c.mh || oh != c.oh {
-			t.Errorf("%s: main-hand bonus crit %.0f, off-hand %.0f, want %.0f and %.0f", c.name, mh, oh, c.mh, c.oh)
+		name string
+		fw   *FakeRageWarrior
+	}{{"maces", maces}, {"swords", swords}} {
+		if aura := c.fw.GetAura("Ruthless"); aura == nil || !aura.IsActive() {
+			t.Errorf("%s: Ruthless is not up", c.name)
 		}
+		if mh, oh := c.fw.AutoAttacks.MHAuto().BonusCritPercent, c.fw.AutoAttacks.OHAuto().BonusCritPercent; mh != 0 || oh != 0 {
+			t.Errorf("%s: per-hand bonus crit %.0f/%.0f, want none", c.name, mh, oh)
+		}
+	}
+	if got, want := swords.GetStat(stats.PhysicalCritPercent), maces.GetStat(stats.PhysicalCritPercent); got != want {
+		t.Errorf("physical crit with swords %.2f, with maces %.2f, want equal", got, want)
+	}
+
+	dwarfMace := setup(proto.Race_RaceDwarf, maceID, swordID)
+	dwarfSword := setup(proto.Race_RaceDwarf, swordID, swordID)
+	if mh := dwarfMace.AutoAttacks.MHAuto().CritMultiplierAdditive; !WithinToleranceFloat64(0.02, mh, 1e-9) {
+		t.Errorf("dwarf with a mace: crit damage bonus %.3f, want 0.02", mh)
+	}
+	if mh := dwarfSword.AutoAttacks.MHAuto().CritMultiplierAdditive; !WithinToleranceFloat64(0.02, mh, 1e-9) {
+		t.Errorf("dwarf without a mace: crit damage bonus %.3f, want 0.02", mh)
 	}
 }

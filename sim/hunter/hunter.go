@@ -370,7 +370,8 @@ const (
 		HunterSpellExplosiveTrap | HunterSpellFreezingTrap |
 		HunterSpellImmolationTrap
 
-	// The shots and stings in Efficiency's (19416) class mask; Sniper Shot is not in it.
+	// The shots and stings in Efficiency's (19416) class mask but Sniper Shot, which build 70425 added
+	// to it and Efficiency names on its own.
 	HunterSpellsShotsAndStings = HunterSpellAimedShot | HunterSpellArcaneShot |
 		HunterSpellMultiShot | HunterSpellSerpentSting |
 		HunterSpellVolley | HunterSpellSummonHawk

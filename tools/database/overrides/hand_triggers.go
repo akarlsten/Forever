@@ -23,35 +23,35 @@ var HandTriggers = []HandTrigger{
 		Spell:    408341,
 		Triggers: 408423,
 		Reason: "Fire Nova's scripted dummy (level 12) casts the nova 408423: same name, level and fire school, " +
-			"0.214 coefficient; beta logs record every Fire Nova hit as 408423 and none as the $-cited Era row",
+			"0.143 coefficient (0.214 before build 70425); beta logs record every Fire Nova hit as 408423 and none as the $-cited Era row",
 		Source: "foreverlogs:2650,2671,2673,32,35",
 	},
 	{
 		Spell:    408342,
 		Triggers: 408424,
 		Reason: "Fire Nova's scripted dummy (level 22) casts the nova 408424: same name, level and fire school, " +
-			"0.214 coefficient; beta logs record every Fire Nova hit as 408423 and none as the $-cited Era row",
+			"0.143 coefficient (0.214 before build 70425); beta logs record every Fire Nova hit as 408423 and none as the $-cited Era row",
 		Source: "foreverlogs:2650,2671,2673,32,35",
 	},
 	{
 		Spell:    408343,
 		Triggers: 408426,
 		Reason: "Fire Nova's scripted dummy (level 32) casts the nova 408426: same name, level and fire school, " +
-			"0.214 coefficient; beta logs record every Fire Nova hit as 408423 and none as the $-cited Era row",
+			"0.143 coefficient (0.214 before build 70425); beta logs record every Fire Nova hit as 408423 and none as the $-cited Era row",
 		Source: "foreverlogs:2650,2671,2673,32,35",
 	},
 	{
 		Spell:    408344,
 		Triggers: 408427,
 		Reason: "Fire Nova's scripted dummy (level 42) casts the nova 408427: same name, level and fire school, " +
-			"0.214 coefficient; beta logs record every Fire Nova hit as 408423 and none as the $-cited Era row",
+			"0.143 coefficient (0.214 before build 70425); beta logs record every Fire Nova hit as 408423 and none as the $-cited Era row",
 		Source: "foreverlogs:2650,2671,2673,32,35",
 	},
 	{
 		Spell:    408345,
 		Triggers: 408428,
 		Reason: "Fire Nova's scripted dummy (level 52) casts the nova 408428: same name, level and fire school, " +
-			"0.214 coefficient; beta logs record every Fire Nova hit as 408423 and none as the $-cited Era row",
+			"0.143 coefficient (0.214 before build 70425); beta logs record every Fire Nova hit as 408423 and none as the $-cited Era row",
 		Source: "foreverlogs:2650,2671,2673,32,35",
 	},
 	{

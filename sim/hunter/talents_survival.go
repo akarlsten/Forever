@@ -80,8 +80,8 @@ func (hunter *Hunter) registerResourcefulness() {
 		return
 	}
 
-	// 440529's cost mask leaves out Strider Kick, but dev AidanZMoon called that a bug fixed for the
-	// 15 Oct build (forever-bugs #271), so it gets the discount like the other melee abilities.
+	// Strider Kick takes the discount like the other melee abilities: build 70425 added it to 440529's
+	// cost mask (word 2, 0x200000), the fix dev AidanZMoon promised (forever-bugs #271).
 	hunter.AddStaticMod(core.SpellModConfig{
 		Kind:       core.SpellMod_PowerCost_Pct_Add,
 		ClassMask:  HunterSpellsTraps | HunterSpellsMelee,
@@ -105,9 +105,12 @@ func (hunter *Hunter) registerResourcefulness() {
 		},
 	})
 
+	// Build 70425: "melee and ranged ability Critical Strikes" only, the row's ProcTypeMask 272
+	// (melee and ranged abilities), where 70374 took any crit (auto attacks, periodic and magic too).
 	hunter.MakeProcTriggerAura(core.ProcTrigger{
 		Name:       "Resourcefulness Trigger",
 		Callback:   core.CallbackOnSpellHitDealt,
+		ProcMask:   core.ProcMaskMeleeOrRangedSpecial,
 		Outcome:    core.OutcomeCrit,
 		ProcChance: 0.5 * float64(hunter.Talents.Resourcefulness),
 		Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {

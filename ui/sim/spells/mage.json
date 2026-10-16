@@ -166,9 +166,9 @@
 	"1239700": {
 		"ability": "Arcane Blast",
 		"file": "sim/mage/arcane_blast.go",
-		"note": "Rank 5, Forever's own id; Arcane Blast is a later expansion spell, so the Classic database has no entry for it. Beta client 1.60.1.70009: 364-424, coefficient .714, 15% of base mana, 2.5 sec cast. The 10%, 175%, 4 stacks and 8 sec come from its buff, 400573. Arcane Missiles spends the stacks as it starts and its missiles keep 15% a stack, though 400573's mask leaves them out: beta log 2721 (rank 3, same fights and targets) has 99-101 a missile after 1 stack and 112-114 after 2, a 1.13 ratio where 10% would give 1.09.",
+		"note": "Rank 5, Forever's own id; Arcane Blast is a later expansion spell, so the Classic database has no entry for it. Beta client 1.60.1.70009: 364-424, coefficient .714, 15% of base mana, 2.5 sec cast. The 10%, 175%, 4 stacks and 8 sec come from its buff, 400573. Arcane Missiles spends the stacks as it starts and its missiles keep 15% a stack, though 400573's mask leaves them out: beta log 2721 (rank 3, same fights and targets) has 99-101 a missile after 1 stack and 112-114 after 2, a 1.13 ratio where 10% would give 1.09. Build 1.60.1.70425: 1.5 sec cast, 218-254 at coefficient .429, and the buff now grants 15% of Intellect as spell damage a stack for 15 sec from the first stack; nothing spends it.",
 		"source": "forever",
-		"tooltip": "15% of base mana\n2.5 sec cast\nBlasts the target with energy, dealing 364 to 424 Arcane damage.\nEach cast increases the damage of all your other spells by 10% and the mana cost of Arcane Blast by 175%, stacking up to 4 times. Lasts 8 sec or until any other damage spell is cast."
+		"tooltip": "15% of base mana\n1.5 sec cast\nBlasts the target with energy, dealing 218 to 254 Arcane damage.\nEach cast gives you 15% of your Intellect as spell damage and increases the mana cost of Arcane Blast by 175%, stacking up to 4 times. Lasts 15 sec from the first application."
 	},
 	"1240047": {
 		"ability": "Ice Lance",
@@ -176,9 +176,9 @@
 			"Spell power coefficient .1, fitted from the beta logs. The client row carries 0, as Season of Discovery's Ice Lance (400640) does: the scaling lives in a server script, and SoD's hotfix of 2024-12-04 raised it by 300% to .572. Each mage's spell power is read off their other spells in the same log (client base plus coefficient), since gear alone undercounts it. Mana (foreverlogs.gg report 2727, 2026-10-07): Fire Blast, both Frostbolt ranks, Cone of Cold, Frost Nova and Blizzard all give about 80 spell power, and rank 1 (base 27.6-32.6 at its max level 26) hit for 38.8 on average unfrozen (52 hits, 36-42) and 38.2 frozen before the x4 (32 hits), .10-.11. Toma (report 2687, 2026-09-30, level 20, about 33 spell power though gear shows 19) hit for 31.4 unfrozen, .09-.11. .143 would put every unfrozen hit of Mana's at 39 or more, but 13 land at 36-37."
 		],
 		"file": "sim/mage/ice_lance.go",
-		"note": "Rank 6, Forever's own id; Ice Lance is a later expansion spell, so the Classic database has no entry for it. Beta client 1.60.1.70009: 133-157 plus its growth to level 60 = 136-160, 160 mana, 300% against frozen targets. Wowhead's 140-164 is the same row at its max level of 64.",
+		"note": "Rank 6, Forever's own id; Ice Lance is a later expansion spell, so the Classic database has no entry for it. Beta client 1.60.1.70009: 133-157 plus its growth to level 60 = 136-160, 160 mana, 300% against frozen targets. Wowhead's 140-164 is the same row at its max level of 64. Build 1.60.1.70425: the frozen bonus is 200% (was 300%), so x3 rather than x4.",
 		"source": "assumed",
-		"tooltip": "160 Mana\nInstant\nDeals 136 to 160 Frost damage to an enemy target.\nDeals 300% increased damage to a frozen target, which against a raid boss means one held by Fingers of Frost."
+		"tooltip": "160 Mana\nInstant\nDeals 136 to 160 Frost damage to an enemy target.\nDeals 200% increased damage to a frozen target, which against a raid boss means one held by Fingers of Frost."
 	},
 	"12472": {
 		"ability": "Cold Snap",
@@ -330,9 +330,9 @@
 	"400625": {
 		"ability": "Hot Streak",
 		"file": "sim/mage/talents_fire.go",
-		"note": "Hot Streak's buff, Forever's own id; it is a later expansion spell, so the Classic database has no entry for it. Beta client 1.60.1.70009: 20 sec (15 before 70009), -25% Pyroblast cast time a stack, 3 stacks, spent by the next Pyroblast. Frostfire Bolt crits, which the Forever tooltip also names, grant a stack too.",
+		"note": "Hot Streak's buff, Forever's own id; it is a later expansion spell, so the Classic database has no entry for it. Beta client 1.60.1.70009: 20 sec (15 before 70009), -25% Pyroblast cast time a stack, 3 stacks, spent by the next Pyroblast. Frostfire Bolt crits, which the Forever tooltip also names, grant a stack too. Build 1.60.1.70425: a Fire Blast hit grants a stack of its own, so a Fire Blast crit grants two.",
 		"source": "forever",
-		"tooltip": "Your non-periodic critical strikes with Fireball, Frostfire Bolt, Fire Blast and Scorch grant Hot Streak for 20 sec.\nEach stack reduces the cast time of Pyroblast by 25%, stacking up to 3 times."
+		"tooltip": "Your non-periodic critical strikes with Fireball, Frostfire Bolt, Fire Blast and Scorch grant Hot Streak for 20 sec.\nEach stack reduces the cast time of Pyroblast by 25%, stacking up to 3 times.\nFire Blast grants an additional stack every time it deals damage."
 	},
 	"400669": {
 		"ability": "Fingers of Frost",
@@ -360,9 +360,9 @@
 		"ability": "Missile Barrage",
 		"file": "sim/mage/talents_arcane.go",
 		"foreverId": 400589,
-		"note": "Missile Barrage is a later expansion spell; the sim keeps 44404 as its action id, which the Forever client store does not carry. Beta client 1.60.1.70009 (400588, 400589): 40% on Arcane Blast, 15 sec, -50% channel with a missile every 0.5 sec, -100% cost. The 20% for Fireball, Frostbolt and Frostfire Bolt is from the 69893 read; 400588's second effect holds 5, which the sim does not read.",
+		"note": "Missile Barrage is a later expansion spell; the sim keeps 44404 as its action id, which the Forever client store does not carry. Beta client 1.60.1.70009 (400588, 400589): 40% on Arcane Blast, 15 sec, -50% channel with a missile every 0.5 sec, -100% cost. The 20% for Fireball, Frostbolt and Frostfire Bolt is from the 69893 read; 400588's second effect holds 5, which the sim does not read. Build 1.60.1.70425: two ranks, the trigger's curve reads 20/40% for Arcane Blast; the tooltip gives Arcane Missile hits a quarter of it and Arcane Wrath, Fireball, Frostbolt and Frostfire Bolt half, and the row's ProcChance is 100 (was 50).",
 		"source": "forever",
-		"tooltip": "Your Arcane Blast has a 40% chance, and your Fireball, Frostbolt and Frostfire Bolt a 20% chance, to grant Missile Barrage.\nYour next Arcane Missiles costs no mana and fires a missile every 0.5 sec instead of every second, halving the channel. Lasts 15 sec."
+		"tooltip": "Your Arcane Blast has a 20/40% chance, your Arcane Missile hits a 5/10% chance, and your Arcane Wrath, Fireball, Frostbolt and Frostfire Bolt a 10/20% chance, to grant Missile Barrage.\nYour next Arcane Missiles costs no mana and fires a missile every 0.5 sec instead of every second, halving the channel. Lasts 15 sec."
 	},
 	"5143": {
 		"ability": "Arcane Missiles",
@@ -475,5 +475,19 @@
 		"note": "Beta client 1.60.1.70009: about 30% less damage at every rank (rank 7 237-280 -> 166-196); coefficient .429, cost and cast unchanged. Every rank is registered, so the fire rotation can drop to rank 1 when mana runs short.",
 		"source": "forever",
 		"tooltip": "100 Mana\n1.5 sec cast\nScorch the enemy for 88 to 106 Fire damage."
+	},
+	"1326082": {
+		"ability": "Arcane Wrath",
+		"file": "sim/mage/arcane_wrath.go",
+		"note": "Rank 4, new in build 1.60.1.70425: the Arcane r3c3 talent (trait definition 145958, needs Arcane Blast). 451 +-10% at coefficient 1.0, 3.5 sec cast, 6 sec cooldown, 395 mana; its second effect adds 5% of maximum mana as spell damage, which the sim adds to the hit at the same coefficient.",
+		"source": "forever",
+		"tooltip": "395 Mana\n30 yd range\n3.5 sec cast\n6 sec cooldown\nLaunches a projectile of pure Arcane energy at the enemy target, causing 406 to 496 Arcane damage. This spell gains additional Spell Damage equal to 5% of your maximum Mana."
+	},
+	"1326055": {
+		"ability": "Frost Blast",
+		"file": "sim/mage/frost_blast.go",
+		"note": "Rank 3, trained from build 1.60.1.70425 (frost skill line). 77 at level 48 plus its growth to 60 = 80-88, 90 mana, 1.5 sec cast, and a 40% slow for 9 sec the sim leaves out. The store prices it at .271 of spell power (the client row states .343). It carries Frostbolt's family flags, chill bit included, so Fingers of Frost rolls on it.",
+		"source": "forever",
+		"tooltip": "90 Mana\n30 yd range\n1.5 sec cast\nQuickly launch a weak blast of frost at the enemy, causing 80 to 88 Frost damage and slowing movement speed by 40% for 9 sec."
 	}
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/wowsims/forever/sim/common/itemhelpers"
 	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 )
@@ -195,4 +196,128 @@ func init() {
 			},
 		})
 	}
+}
+
+// Build 70425's new item effects, which the generator registers wrongly or not at all.
+func init() {
+	// Blade of Hanna (2801): each main-hand melee hit adds a stack of Improving Form (1325535 ->
+	// 1325509, 30 stacks). The 30th perfects the form (1325508): 490 Physical damage to the target,
+	// +20 all stats for 20 sec, and the stacks are spent (its E_REMOVE_AURA on 1325509). The generated
+	// entry cast the 490 on every swing. Whether stacks build while Perfected Form is up is not
+	// stated; the sim lets them.
+	core.NewItemEffect(2801, func(agent core.Agent) {
+		character := agent.GetCharacter()
+		perfectedRow := spelldata.MustFind(1325508)
+		allStats := perfectedRow.EffectN(2).Average(core.CharacterLevel)
+
+		perfectedForm := character.NewTemporaryStatsAura("Perfected Form", core.ActionID{SpellID: perfectedRow.ID},
+			stats.Stats{stats.Strength: allStats, stats.Agility: allStats, stats.Stamina: allStats, stats.Intellect: allStats, stats.Spirit: allStats},
+			perfectedRow.Duration())
+		strike := character.GetOrRegisterSpell(shared.SpellDataProcDamageSpell(character, perfectedRow))
+
+		stackRow := spelldata.MustFind(1325509)
+		improvingForm := character.RegisterAura(core.Aura{
+			Label:     "Improving Form",
+			ActionID:  core.ActionID{SpellID: stackRow.ID},
+			Duration:  core.NeverExpires,
+			MaxStacks: int32(stackRow.MaxStack),
+		})
+
+		character.MakeProcTriggerAura(core.ProcTrigger{
+			Name:     "Blade of Hanna",
+			ActionID: core.ActionID{SpellID: 1325535},
+			Callback: core.CallbackOnSpellHitDealt,
+			ProcMask: core.ProcMaskMeleeMHAuto,
+			Outcome:  core.OutcomeLanded,
+			Handler: func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+				if !improvingForm.IsActive() {
+					improvingForm.Activate(sim)
+				}
+				improvingForm.AddStack(sim)
+				if improvingForm.GetStacks() < improvingForm.MaxStacks {
+					return
+				}
+				improvingForm.Deactivate(sim)
+				strike.Cast(sim, result.Target)
+				perfectedForm.Activate(sim)
+			},
+		})
+	})
+
+	// Lord Sakrasis' Scepter (5028), held in the off hand: its equip aura 1326019 casts Holy Smite
+	// (1312330, 56 Holy) off harmful spells at SpellProcsPerMinute 455, 2 procs a minute with the
+	// haste flag. The store does not read that table, so the generated entry fired on every cast.
+	// The rate here is a real-PPM one: 2 x the time since the last chance (capped at 3.5 sec) x
+	// spell haste / 60, without the client's bad-luck protection. Unverified.
+	core.NewItemEffect(5028, func(agent core.Agent) {
+		character := agent.GetCharacter()
+		const ppm, maxGap = 2.0, 3500 * time.Millisecond
+		smite := character.GetOrRegisterSpell(shared.SpellDataProcDamageSpell(character, spelldata.MustFind(1312330)))
+
+		var lastChance time.Duration
+		character.RegisterResetEffect(func(_ *core.Simulation) { lastChance = 0 })
+		character.MakeProcTriggerAura(core.ProcTrigger{
+			Name:     "Lord Sakrasis' Scepter",
+			ActionID: core.ActionID{SpellID: 1326019},
+			Callback: core.CallbackOnSpellHitDealt,
+			ProcMask: core.ProcMaskSpellDamage,
+			Outcome:  core.OutcomeLanded,
+			Handler: func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+				gap := min(sim.CurrentTime-lastChance, maxGap)
+				lastChance = sim.CurrentTime
+				chance := ppm * gap.Seconds() / 60 * character.TotalSpellHasteMultiplier()
+				if sim.Proc(chance, "Lord Sakrasis' Scepter") {
+					smite.Cast(sim, result.Target)
+				}
+			},
+		})
+	})
+
+	// Robes of Insight (940): build 70425's Insight (18820) is -200 mana on every spell (aura 73,
+	// magic schools, mana) for 12 sec on a 10 min use, where it was one spell's cost up to 500. The
+	// generator has no shape for a cost aura. A mana cooldown, so it stays out of the all-items DPS
+	// goldens.
+	core.AddEffectsToTest = false
+	defer func() { core.AddEffectsToTest = true }()
+	core.NewItemEffect(940, func(agent core.Agent) {
+		character := agent.GetCharacter()
+		row := spelldata.MustFind(18820)
+		costMod := character.AddDynamicMod(core.SpellModConfig{
+			Kind:         core.SpellMod_PowerCost_Flat,
+			ResourceType: proto.ResourceType_ResourceTypeMana,
+			School:       core.SpellSchoolChaos,
+			IntValue:     int32(row.EffectN(1).BasePoints),
+		})
+		aura := character.RegisterAura(core.Aura{
+			Label:    "Insight",
+			ActionID: core.ActionID{SpellID: row.ID},
+			Duration: row.Duration(),
+			OnGain: func(_ *core.Aura, _ *core.Simulation) {
+				costMod.Activate()
+			},
+			OnExpire: func(_ *core.Aura, _ *core.Simulation) {
+				costMod.Deactivate()
+			},
+		})
+		spell := character.RegisterSpell(core.SpellConfig{
+			ActionID: core.ActionID{ItemID: 940},
+			Flags:    core.SpellFlagNoOnCastComplete,
+			Cast: core.CastConfig{
+				CD: core.Cooldown{
+					Timer:    character.NewTimer(),
+					Duration: time.Minute * 10,
+				},
+			},
+			ApplyEffects: func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+				aura.Activate(sim)
+			},
+		})
+		character.AddMajorCooldown(core.MajorCooldown{
+			Spell: spell,
+			Type:  core.CooldownTypeMana,
+			ShouldActivate: func(_ *core.Simulation, character *core.Character) bool {
+				return character.HasManaBar()
+			},
+		})
+	})
 }

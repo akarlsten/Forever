@@ -46,7 +46,9 @@ func (shaman *Shaman) startShieldProcPeriodicAction(sim *core.Simulation) {
 
 // Water Shield (408510) sits on the Restoration talent line with no rank subtext, so gen_spelldata
 // makes no table for it and the ids and values are pinned from the client: three globes of 2% maximum
-// mana, one every 3.5 sec at most, no mana cost, 15 sec cooldown.
+// mana, one every 3.5 sec at most, no mana cost, 15 sec cooldown. Build 70425 widened the proc types
+// (156328 -> 221864, adding harmful spells): a globe also goes off when one of the shaman's own spells
+// crits, which is what the tooltip now says. Both triggers share the 3.5 sec lockout.
 const waterShieldSpellID = 408510
 const waterShieldGlobes = 3
 const waterShieldManaFraction = 0.02
@@ -59,6 +61,19 @@ func (shaman *Shaman) registerWaterShieldSpell() {
 	actionID := core.ActionID{SpellID: waterShieldSpellID}
 	waterShieldManaMetrics := shaman.NewManaMetrics(actionID)
 
+	lockout := core.Cooldown{
+		Timer:    shaman.NewTimer(),
+		Duration: 3500 * time.Millisecond,
+	}
+	expendGlobe := func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+		if !lockout.IsReady(sim) {
+			return
+		}
+		lockout.Use(sim)
+		shaman.WaterShieldAura.RemoveStack(sim)
+		shaman.AddMana(sim, shaman.MaxMana()*waterShieldManaFraction, waterShieldManaMetrics)
+	}
+
 	shaman.WaterShieldAura = shaman.RegisterAura(core.Aura{
 		Label:     "Water Shield",
 		ActionID:  actionID,
@@ -67,12 +82,14 @@ func (shaman *Shaman) registerWaterShieldSpell() {
 	}).AttachProcTrigger(core.ProcTrigger{
 		Name:           "Water Shield Trigger",
 		Callback:       core.CallbackOnSpellHitTaken,
-		ICD:            3500 * time.Millisecond,
 		ClassSpellMask: SpellMaskShieldSelfProc,
-		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-			shaman.WaterShieldAura.RemoveStack(sim)
-			shaman.AddMana(sim, shaman.MaxMana()*waterShieldManaFraction, waterShieldManaMetrics)
-		},
+		Handler:        expendGlobe,
+	}).AttachProcTrigger(core.ProcTrigger{
+		Name:     "Water Shield Crit Trigger",
+		Callback: core.CallbackOnSpellHitDealt | core.CallbackOnHealDealt,
+		ProcMask: core.ProcMaskSpellDamage | core.ProcMaskSpellHealing,
+		Outcome:  core.OutcomeCrit,
+		Handler:  expendGlobe,
 	})
 
 	shaman.RegisterSpell(core.SpellConfig{

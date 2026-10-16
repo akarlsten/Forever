@@ -51,9 +51,9 @@
 	"1310925": {
 		"ability": "Shield Specialization",
 		"file": "sim/paladin/talents_protection.go",
-		"note": "The mana return, Forever's own id, which the sim's Shield Specialization mana metrics carry. Forever bolted it onto Classic's shield absorb. Beta client 1.60.1.70009 (20150's curves): 10/20/30% block value, and a 33/66/100% chance on a block to restore 6% of maximum mana, once every 3 sec.",
+		"note": "The mana return, Forever's own id, which the sim's Shield Specialization mana metrics carry. Forever bolted it onto Classic's shield absorb. Beta client 1.60.1.70009 (20150's curves): 10/20/30% block value, and a 33/66/100% chance on a block to restore 6% of maximum mana, once every 3 sec. Build 1.60.1.70425: 4% of maximum mana (was 6%).",
 		"source": "forever",
-		"tooltip": "Increases the amount of damage absorbed by your shield by 10% per talent point, and gives your blocks a 33/66/100% chance to restore 6% of your maximum Mana.\nMay only occur once every 3 sec."
+		"tooltip": "Increases the amount of damage absorbed by your shield by 10% per talent point, and gives your blocks a 33/66/100% chance to restore 4% of your maximum Mana.\nMay only occur once every 3 sec."
 	},
 	"1310994": {
 		"ability": "Swift Judgement",
@@ -111,12 +111,12 @@
 		"source": "forever",
 		"tooltip": "Damaging melee attacks against you have a 2% chance per talent point to increase your chance to block by 6% per talent point.\nLasts 10 sec or 5 blocks."
 	},
-	"20178": {
+	"1326084": {
 		"ability": "Reckoning",
 		"file": "sim/paladin/talents_protection.go",
-		"note": "The extra attack: a main-hand swing at once that leaves the swing timer alone (beta logs 2747-2749, 14 of 16 procs: the next normal swing comes one weapon speed after the previous one), at most once per 1.5 s (20177 ProcCategoryRecovery, client 1.60.1.70291+). Beta client 1.60.1.70009: 8% a point on a block from 20177's curve, which Forever added; the crit half keeps Classic's 20% a point.",
+		"note": "The stored extra attacks, the id the sim registers. Build 1.60.1.70425 turned 20177 from a proc trigger of 20178 into a dummy, and 1326084 holds the attacks: up to 4, all spent by the next main-hand swing (proc flags 0x4, one charge). Each is a main-hand swing at once that leaves the swing timer alone, as the single attack was in beta logs 2747-2749 (14 of 16 procs). Only blocks keep 20177's 1.5 s proc cooldown. 8% a point on a block from 20177's curve; the crit half is 2.5 times it, Classic's 20% a point.",
 		"source": "forever",
-		"tooltip": "Gives you an 8% chance per talent point to gain an extra attack after blocking a melee attack, and a 20% chance per talent point to gain an extra attack after being the victim of a non-periodic critical strike."
+		"tooltip": "Gives you an 8% chance per talent point after blocking, and a 20% chance per talent point after receiving a non-periodic critical strike, to gain an extra attack. Stores up to 4 extra attacks, all made with your next swing. Cannot occur from blocks more than once every 1.5 sec."
 	},
 	"20187": {
 		"ability": "Judgement of Righteousness",
