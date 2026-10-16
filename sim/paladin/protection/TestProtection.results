@@ -44,7 +44,7 @@ character_stats_results: {
   final_stats: 0
   final_stats: 3
   final_stats: 3
-  final_stats: 9.2034
+  final_stats: 11.2034
   final_stats: 13.7211
   final_stats: 0.8
   final_stats: 0
@@ -868,8 +868,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-IcebladeHacker-13952"
  value: {
-  dps: 281.31953
-  tps: 326.85802
+  dps: 286.95231
+  tps: 332.11685
   dtps: 1617.38536
  }
 }
@@ -900,8 +900,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Ironfoe-11684"
  value: {
-  dps: 280.47644
-  tps: 326.48206
+  dps: 285.51212
+  tps: 331.1262
   dtps: 1588.46101
  }
 }
@@ -1957,16 +1957,16 @@ dps_results: {
 dps_results: {
  key: "TestProtection-Settings-Human-WeaponAndShield-DefaultTalents-Protection-p5-FullBuffs-5.0yards-LongMultiTarget"
  value: {
-  dps: 1089.39077
-  tps: 1875.03358
+  dps: 1089.66435
+  tps: 1875.39744
   dtps: 30453.63424
  }
 }
 dps_results: {
  key: "TestProtection-Settings-Human-WeaponAndShield-DefaultTalents-Protection-p5-FullBuffs-5.0yards-LongSingleTarget"
  value: {
-  dps: 338.63283
-  tps: 413.23739
+  dps: 339.0799
+  tps: 413.832
   dtps: 1506.94366
  }
 }
@@ -2053,24 +2053,24 @@ dps_results: {
 dps_results: {
  key: "TestProtection-Settings-Human-WeaponAndShield-Protection 0/45/6-Protection-p5-FullBuffs-5.0yards-LongMultiTarget"
  value: {
-  dps: 1068.69588
-  tps: 1844.77591
+  dps: 1069.04287
+  tps: 1845.23741
   dtps: 30161.26696
  }
 }
 dps_results: {
  key: "TestProtection-Settings-Human-WeaponAndShield-Protection 0/45/6-Protection-p5-FullBuffs-5.0yards-LongSingleTarget"
  value: {
-  dps: 324.23862
-  tps: 405.13324
+  dps: 324.59276
+  tps: 405.60424
   dtps: 1402.30651
  }
 }
 dps_results: {
  key: "TestProtection-Settings-Human-WeaponAndShield-Protection 0/45/6-Protection-p5-FullBuffs-5.0yards-ShortSingleTarget"
  value: {
-  dps: 322.81562
-  tps: 475.86668
+  dps: 323.34698
+  tps: 476.57338
   dtps: 1401.68551
  }
 }

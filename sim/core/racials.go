@@ -13,7 +13,7 @@ func applyRaceEffects(agent Agent) {
 
 	switch character.Race {
 	case proto.Race_RaceDwarf:
-		applyWeaponSpecialization(character, "Mace Specialization", 1259719, 1, proto.WeaponType_WeaponTypeMace)
+		applyEarthFury(character)
 		applyCreatureTypeSlaying(character, proto.MobType_MobTypeBeast)
 
 		actionID := ActionID{SpellID: 20594}
@@ -52,7 +52,7 @@ func applyRaceEffects(agent Agent) {
 		applyEureka(character)
 	case proto.Race_RaceHuman:
 		character.MultiplyStat(stats.Spirit, 1.05)
-		applyWeaponSpecialization(character, "Sword Specialization", 20597, 2, proto.WeaponType_WeaponTypeSword)
+		applyRacialCrit(character, "Ruthless", 20597, 2)
 	case proto.Race_RaceNightElf:
 		character.PseudoStats.BaseDodgeChance += 0.01
 		character.PseudoStats.MovementSpeedMultiplier *= 1.02
@@ -74,7 +74,7 @@ func applyRaceEffects(agent Agent) {
 				},
 			})
 	case proto.Race_RaceOrc:
-		applyWeaponSpecialization(character, "Axe Specialization", 20574, 1, proto.WeaponType_WeaponTypeAxe)
+		applyRacialCrit(character, "Savage", 20574, 1)
 
 		bloodFuryID := ActionID{SpellID: 20572}
 
@@ -89,9 +89,10 @@ func applyRaceEffects(agent Agent) {
 			{Stat: stats.HealingPower, Multiplier: 1.1},
 		})
 
+		// 3 min since build 70425 (was 2).
 		bloodFuryCD := Cooldown{
 			Timer:    character.NewTimer(),
-			Duration: time.Minute * 2,
+			Duration: time.Minute * 3,
 		}
 		bloodFuryAura.Icd = &bloodFuryCD
 
@@ -129,7 +130,8 @@ func applyRaceEffects(agent Agent) {
 			stats.SchoolIndexNature,
 			stats.SchoolIndexShadow,
 		} {
-			shatterCurseAura.AttachMultiplicativePseudoStatBuff(&character.PseudoStats.SchoolDamageTakenMultiplier[school], 0.85)
+			// -5% magic damage taken since build 70425 (was -15%).
+			shatterCurseAura.AttachMultiplicativePseudoStatBuff(&character.PseudoStats.SchoolDamageTakenMultiplier[school], 0.95)
 		}
 
 		shatterCurse := character.RegisterSpell(SpellConfig{
@@ -200,7 +202,7 @@ func applyRaceEffects(agent Agent) {
 		energizedAura := character.RegisterAura(Aura{
 			Label:    "Energized",
 			ActionID: ActionID{SpellID: 1270842},
-			Duration: time.Second * 15,
+			Duration: time.Second * 30, // build 70425 (was 15)
 			OnGain: func(aura *Aura, sim *Simulation) {
 				if aura.Unit.HasManaBar() {
 					aura.Unit.MultiplyManaRegenSpeed(sim, 2)
@@ -219,7 +221,7 @@ func applyRaceEffects(agent Agent) {
 			Flags:    SpellFlagAPL | SpellFlagNoOnCastComplete,
 			Cast: CastConfig{
 				DefaultCast: Cast{
-					GCD: GCDDefault,
+					GCD:      GCDDefault,
 					CastTime: time.Second * 2,
 				},
 				CD: Cooldown{
@@ -254,7 +256,7 @@ func applyRaceEffects(agent Agent) {
 			Flags:    SpellFlagAPL | SpellFlagNoOnCastComplete,
 			Cast: CastConfig{
 				DefaultCast: Cast{
-					GCD: GCDDefault,
+					GCD:      GCDDefault,
 					CastTime: time.Millisecond * 500,
 				},
 				CD: Cooldown{
@@ -291,44 +293,47 @@ func applyCreatureTypeSlaying(character *Character, mobType proto.MobType) {
 	})
 }
 
-// The physical crit follows the hand holding the weapon: the client's aura (290) carries a
-// SpellEquippedItems weapon requirement, so it counts per attack weapon. A sword in the off hand
-// crits only off-hand swings, and ranged attacks never get it (forever-bugs #91: orc with an axe,
-// 500+ auto shots against a level higher target and not one crit, melee still critting).
-func applyWeaponSpecialization(character *Character, label string, spellID int32, critPercent float64, weaponType proto.WeaponType) {
-	hasWeaponEquipped := func() bool { return character.GetProcMaskForTypes(weaponType).Matches(ProcMaskMelee) }
-
-	aura := character.RegisterAura(Aura{
+// Savage (orc 20574) and Ruthless (human 20597): build 70425 dropped the axe and sword requirement,
+// so the aura (290) is plain crit on every spell and attack, 1% and 2%.
+func applyRacialCrit(character *Character, label string, spellID int32, critPercent float64) {
+	MakePermanent(character.RegisterAura(Aura{
 		Label:      label,
 		ActionID:   ActionID{SpellID: spellID},
 		Duration:   NeverExpires,
-		BuildPhase: Ternary(hasWeaponEquipped(), CharacterBuildPhaseBase, CharacterBuildPhaseNone),
-	}).
-		AttachStatBuff(stats.SpellCritPercent, critPercent)
+		BuildPhase: CharacterBuildPhaseBase,
+	}).AttachStatsBuff(stats.Stats{
+		stats.PhysicalCritPercent: critPercent,
+		stats.SpellCritPercent:    critPercent,
+	}))
+}
 
-	if hasWeaponEquipped() {
+// Earth Fury (dwarf 1259719, was Mace Specialization's 1% crit): +2% critical strike damage and
+// healing bonus (auras 163 and 50) while a mace is equipped, the requirement the row keeps
+// (SpellEquippedItems subclass mask 48, one- and two-handed maces).
+func applyEarthFury(character *Character) {
+	hasMace := func() bool {
+		return character.GetProcMaskForTypes(proto.WeaponType_WeaponTypeMace).Matches(ProcMaskMelee)
+	}
+
+	critBonus := character.AddDynamicMod(SpellModConfig{Kind: SpellMod_CritMultiplier_Flat, FloatValue: 0.02})
+	aura := character.RegisterAura(Aura{
+		Label:      "Earth Fury",
+		ActionID:   ActionID{SpellID: 1259719},
+		Duration:   NeverExpires,
+		BuildPhase: Ternary(hasMace(), CharacterBuildPhaseBase, CharacterBuildPhaseNone),
+		OnGain: func(_ *Aura, _ *Simulation) {
+			critBonus.Activate()
+		},
+		OnExpire: func(_ *Aura, _ *Simulation) {
+			critBonus.Deactivate()
+		},
+	})
+	if hasMace() {
 		MakePermanent(aura)
 	}
 
-	critMods := map[ProcMask]*SpellMod{
-		ProcMaskMeleeMH: character.AddDynamicMod(SpellModConfig{Kind: SpellMod_BonusCrit_Percent, ProcMask: ProcMaskMeleeMH, FloatValue: critPercent}),
-		ProcMaskMeleeOH: character.AddDynamicMod(SpellModConfig{Kind: SpellMod_BonusCrit_Percent, ProcMask: ProcMaskMeleeOH, FloatValue: critPercent}),
-	}
-	setHands := func() {
-		held := character.GetProcMaskForTypes(weaponType)
-		for hand, mod := range critMods {
-			if held.Matches(hand) {
-				mod.Activate()
-			} else {
-				mod.Deactivate()
-			}
-		}
-	}
-	setHands()
-
 	character.RegisterItemSwapCallback(AllWeaponSlots(), func(sim *Simulation, _ proto.ItemSlot) {
-		setHands()
-		if hasWeaponEquipped() {
+		if hasMace() {
 			aura.Activate(sim)
 		} else {
 			aura.Deactivate(sim)
@@ -347,7 +352,8 @@ func applyExpansiveMind(character *Character) {
 	}
 }
 
-// Eureka! names the spells it changes with each class's spell family mask. Build 70170 masks, as
+// Eureka! names the spells it changes with each class's spell family mask. Build 70425 took away its
+// three charges: it lasts 8 sec and every matching spell in that time gets it. Build 70170 masks, as
 // effect 0 (SPELLMOD_COST), effect 1 (SPELLMOD_DAMAGE) and effect 2 (SPELLMOD_DOT) state them; core
 // cannot import spelldata, so they are mirrored here. 70170 made it "non-periodic damaging abilities":
 // the DoTs (Rend, Rupture, Garrote, Corruption, Shadow Word: Pain, Devouring Plague...) and the utility
@@ -365,8 +371,8 @@ func applyEureka(character *Character) {
 	switch character.Class {
 	case proto.Class_ClassRogue:
 		spellID, resourceType = 1259812, proto.ResourceType_ResourceTypeEnergy
-		costMask = [4]uint32{100794910, 2097408}
-		directMask = costMask
+		costMask = [4]uint32{100794910, 2097408, 4} // 70425 adds Death Mark to the cost (word 2) only
+		directMask = [4]uint32{100794910, 2097408}
 	case proto.Class_ClassWarrior:
 		spellID, resourceType = 1259813, proto.ResourceType_ResourceTypeRage
 		costMask = [4]uint32{1784679630, 5, 1}
@@ -441,23 +447,16 @@ func applyEureka(character *Character) {
 	})
 
 	aura := character.RegisterAura(Aura{
-		Label:     "Eureka!",
-		ActionID:  actionID,
-		Duration:  time.Second * 15,
-		MaxStacks: 3,
-		OnGain: func(aura *Aura, sim *Simulation) {
-			aura.SetStacks(sim, 3)
+		Label:    "Eureka!",
+		ActionID: actionID,
+		Duration: time.Second * 8,
+		OnGain: func(_ *Aura, _ *Simulation) {
 			costMod.Activate()
 			damageMod.Activate()
 		},
 		OnExpire: func(_ *Aura, _ *Simulation) {
 			costMod.Deactivate()
 			damageMod.Deactivate()
-		},
-		OnCastComplete: func(aura *Aura, sim *Simulation, spell *Spell) {
-			if spell.Matches(anyClassSpell) && (names(spell, costMask) || names(spell, directMask) || names(spell, dotMask)) {
-				aura.RemoveStack(sim)
-			}
 		},
 	})
 
@@ -483,11 +482,13 @@ func applyEureka(character *Character) {
 	})
 }
 
+// Build 70425: 20% for warriors, paladins and rogues and 30% for everyone else (was 5% and 10%), at
+// most once every 25 sec (was 1).
 func applyTouchOfTheGrave(character *Character) {
-	auraID, procChance := int32(1260201), 0.1
+	auraID, procChance := int32(1260201), 0.3
 	switch character.Class {
 	case proto.Class_ClassWarrior, proto.Class_ClassPaladin, proto.Class_ClassRogue:
-		auraID, procChance = 1260189, 0.05
+		auraID, procChance = 1260189, 0.2
 	}
 
 	drainID := ActionID{SpellID: 1260198}
@@ -518,7 +519,7 @@ func applyTouchOfTheGrave(character *Character) {
 		ProcMask:   ProcMaskMelee | ProcMaskRanged | ProcMaskSpellDamage,
 		Outcome:    OutcomeLanded,
 		ProcChance: procChance,
-		ICD:        time.Second,
+		ICD:        time.Second * 25,
 		Handler: func(sim *Simulation, spell *Spell, result *SpellResult) {
 			drain.Cast(sim, result.Target)
 		},
