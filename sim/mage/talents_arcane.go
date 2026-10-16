@@ -216,19 +216,20 @@ func (mage *Mage) registerArcaneMeditation() {
 	mage.PseudoStats.SpiritRegenRateCasting += spellData.ArcaneMeditation.FractionAt(mage.Talents.ArcaneMeditation)
 }
 
-// Arcane Blast landing (40%), or Fireball, Frostbolt or Frostfire Bolt (20%), can make the next Arcane
-// Missiles free and fire its missiles every 0.5 sec instead of every second: the same count in half
-// the channel. 400588 procs on a landed harmful spell (ProcFlags 0x10000), so a miss can't, and a bolt
-// procs when it arrives. Its trigger effect holds Arcane Blast's 40; the tooltip's 20 for the bolts
-// is half of it, which the row doesn't state. The buff (400589) holds the duration, cost and tick
-// changes. 44404 stays the aura id because saved rotations key on it.
+// Missile Barrage (400588), two ranks since build 70425: the rank curve on its trigger effect reads
+// 20/40%. Arcane Blast procs it at that chance, an Arcane Missile hit at a quarter of it, and Arcane
+// Wrath, Fireball, Frostbolt and Frostfire Bolt at half (the tooltip's $m1, ${$m1/4} and ${$m1/2}; the
+// row's ProcChance is now 100, so nothing else gates the roll). It procs on a landed harmful spell
+// (ProcFlags 0x10000), so a miss can't, and a bolt procs when it arrives. The buff (400589) makes the
+// next Arcane Missiles free and fire its missiles every 0.5 sec instead of every second: the same
+// count in half the channel. 44404 stays the aura id because saved rotations key on it.
 func (mage *Mage) registerMissileBarrage() {
 	if mage.Talents.MissileBarrage == 0 {
 		return
 	}
 
 	buff := spellData.MissileBarrageTriggered.Highest()
-	arcaneBlastChance := spellData.MissileBarrage.Highest().Effect(dbcenums.A_PROC_TRIGGER_SPELL, 0).Average(core.CharacterLevel) / 100
+	arcaneBlastChance := spellData.MissileBarrage.EffectAt(1).ValueAt(mage.Talents.MissileBarrage) / 100
 
 	mage.MissileBarrageAura = mage.RegisterAura(core.Aura{
 		Label:    "Missile Barrage",
@@ -250,21 +251,30 @@ func (mage *Mage) registerMissileBarrage() {
 	})
 
 	mage.MakeProcTriggerAura(core.ProcTrigger{
-		Name:               "Missile Barrage Trigger",
-		Callback:           core.CallbackOnSpellHitDealt,
-		ClassSpellMask:     MageSpellArcaneBlast | MageSpellFireball | MageSpellFrostbolt | MageSpellFrostfireBolt,
+		Name:     "Missile Barrage Trigger",
+		Callback: core.CallbackOnSpellHitDealt,
+		ClassSpellMask: MageSpellArcaneBlast | MageSpellArcaneMissilesTick | MageSpellArcaneWrath |
+			MageSpellFireball | MageSpellFrostbolt | MageSpellFrostfireBolt,
 		Outcome:            core.OutcomeLanded,
 		TriggerImmediately: true,
 		Handler: func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
-			procChance := arcaneBlastChance
-			if !spell.Matches(MageSpellArcaneBlast) {
-				procChance /= 2
-			}
-			if sim.Proc(procChance, "Missile Barrage") {
+			if sim.Proc(missileBarrageChance(spell, arcaneBlastChance), "Missile Barrage") {
 				mage.MissileBarrageAura.Activate(sim)
 			}
 		},
 	})
+}
+
+// The share of Arcane Blast's Missile Barrage chance a proccing spell gets.
+func missileBarrageChance(spell *core.Spell, arcaneBlastChance float64) float64 {
+	switch {
+	case spell.Matches(MageSpellArcaneBlast):
+		return arcaneBlastChance
+	case spell.Matches(MageSpellArcaneMissilesTick):
+		return arcaneBlastChance / 4
+	default:
+		return arcaneBlastChance / 2
+	}
 }
 
 func (mage *Mage) registerArcaneMind() {

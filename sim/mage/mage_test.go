@@ -33,8 +33,8 @@ func TestFrost(t *testing.T) {
 }
 
 // The community builds our Forever sim ranks: Arcane 35/0/16, Fire 0/35/16 and Frost 14/0/37.
-var ArcaneTalents = "0551005023100301531--005500033"
-var FireTalents = "-03552020130133131-005500033"
+var ArcaneTalents = "0552005013100301531--005500033"
+var FireTalents = "-03552020130135131-005500033"
 var FrostTalents = "0500005013--0555300301001301251"
 
 func mageSuite(apl string, talents string) core.CharacterSuiteConfig {
@@ -571,8 +571,9 @@ func TestSpellRangesFollowTheClient(t *testing.T) {
 		{"", spellData.Frostbolt.Highest().ID, 30},
 		{"", spellData.FireBlast.Highest().ID, 20},
 		{"", spellData.ConeOfCold.Highest().ID, 10},
-		{ArcaneTalents, spellData.ArcaneBlast.Highest().ID, 36},  // Arcane Geometry 2/2: +6 yd
+		{"000000002010", spellData.ArcaneBlast.Highest().ID, 36}, // Arcane Geometry 2/2: +6 yd
 		{FireTalents, spellData.FireBlast.Highest().ID, 26},      // Flame Throwing 2/2: +6 yd
+		{"-2", spellData.FireBlast.Highest().ID, 35},             // Improved Fire Blast 2/2: +15 yd (build 70425)
 		{"--000000000002", spellData.Blizzard.Highest().ID, 36},  // Arctic Reach 2/2: +20% range
 		{"--000000000002", spellData.FrostNova.Highest().ID, 12}, // and radius
 	} {

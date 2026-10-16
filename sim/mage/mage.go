@@ -84,6 +84,7 @@ func (mage *Mage) registerSpells() {
 	mage.registerBlizzardSpell()
 	mage.registerConeOfColdSpell()
 	mage.registerFrostboltSpell()
+	mage.registerFrostBlastSpell()
 	mage.registerEvocation()
 	mage.registerFireballSpell()
 	mage.registerFrostfireBoltSpell()
@@ -98,6 +99,7 @@ func (mage *Mage) registerSpells() {
 	//TalentSpells
 	mage.registerPresenceOfMindSpell()
 	mage.registerArcanePowerSpell()
+	mage.registerArcaneWrathSpell()
 
 	mage.registerBlastWaveSpell()
 	mage.registerPyroblastSpell()
@@ -171,16 +173,19 @@ const (
 	MageSpellCombustion
 	MageSpellImprovedBlizzard
 	MageSpellFrostfireBolt
+	MageSpellArcaneWrath
+	MageSpellFrostBlast
 
 	MageSpellLast
 	MageSpellsAll  = MageSpellLast<<1 - 1
-	MageSpellFrost = MageSpellFrostbolt | MageSpellBlizzard | MageSpellFrostNova | MageSpellConeOfCold | MageSpellIceLance
+	MageSpellFrost = MageSpellFrostbolt | MageSpellBlizzard | MageSpellFrostNova | MageSpellConeOfCold | MageSpellIceLance | MageSpellFrostBlast
 	MageSpellFire  = MageSpellFireball | MageSpellCombustion |
 		MageSpellFireBlast | MageSpellFlamestrike | MageSpellIgnite | MageSpellPyroblast | MageSpellScorch
 	MageSpellsAllDamaging = MageSpellArcaneBlast | MageSpellArcaneExplosion | MageSpellArcaneMissilesTick | MageSpellBlizzard |
 		MageSpellFireBlast | MageSpellFireball | MageSpellFlamestrike | MageSpellFrostbolt |
 		MageSpellIceLance | MageSpellPyroblast | MageSpellPyroblastDot | MageSpellScorch |
-		MageSpellBlastWave | MageSpellConeOfCold | MageSpellFrostNova | MageSpellFrostfireBolt
+		MageSpellBlastWave | MageSpellConeOfCold | MageSpellFrostNova | MageSpellFrostfireBolt |
+		MageSpellArcaneWrath | MageSpellFrostBlast
 	MageSpellInstantCast = MageSpellArcaneMissilesCast | MageSpellArcaneMissilesTick | MageSpellFireBlast | MageSpellArcaneExplosion | MageSpellPyroblastDot |
 		MageSpellCombustion | MageSpellConeOfCold | MageSpellIceLance | MageSpellManaGems | MageSpellPresenceOfMind
 	MageSpellExtraResult    = MageSpellArcaneMissilesTick | MageSpellBlizzard
@@ -188,8 +193,9 @@ const (
 	MageSpellArcaneMissiles = MageSpellArcaneMissilesCast | MageSpellArcaneMissilesTick
 
 	// The chill effects Fingers of Frost rolls on: Frostbolt's slow, Cone of Cold's, Frostfire Bolt's
-	// (all three carry the client's chill bit, 0x100000) and Improved Blizzard's.
-	MageSpellChill = MageSpellFrostbolt | MageSpellConeOfCold | MageSpellFrostfireBolt | MageSpellImprovedBlizzard
+	// (all three carry the client's chill bit, 0x100000), Frost Blast's (same flags as Frostbolt, build
+	// 70425) and Improved Blizzard's.
+	MageSpellChill = MageSpellFrostbolt | MageSpellConeOfCold | MageSpellFrostfireBolt | MageSpellImprovedBlizzard | MageSpellFrostBlast
 )
 
 // Arcane Explosion, Blast Wave, Cone of Cold and Frost Nova reach the targets within 10 yards of the

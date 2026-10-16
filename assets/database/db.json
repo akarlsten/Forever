@@ -15588,7 +15588,13 @@
 {"id":1323967,"name":"Gore Drinker","icon":"racial_troll_berserk"},
 {"id":1325257,"name":"Mana Tide","icon":"spell_frost_summonwaterelemental","rank":4,"hasBuff":true},
 {"id":1326047,"name":"Lava Burst","icon":"spell_shaman_lavaburst","rank":4},
+{"id":1326053,"name":"Frost Blast","icon":"spell_ice_magicdamage","rank":1,"hasBuff":true},
+{"id":1326054,"name":"Frost Blast","icon":"spell_ice_magicdamage","rank":2,"hasBuff":true},
+{"id":1326055,"name":"Frost Blast","icon":"spell_ice_magicdamage","rank":3,"hasBuff":true},
 {"id":1326079,"name":"Arcane Wrath","icon":"ability_mage_netherwindpresence","rank":1},
+{"id":1326080,"name":"Arcane Wrath","icon":"ability_mage_netherwindpresence","rank":2},
+{"id":1326081,"name":"Arcane Wrath","icon":"ability_mage_netherwindpresence","rank":3},
+{"id":1326082,"name":"Arcane Wrath","icon":"ability_mage_netherwindpresence","rank":4},
 {"id":1326159,"name":"Dark Inspiration","icon":"spell_warlock_demonsoul"}
 ],
 "encounters":[

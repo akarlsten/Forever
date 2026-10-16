@@ -40,8 +40,8 @@ func (mage *Mage) registerFireTalents() {
 	// Combustion: combustion.go
 }
 
-// The Fire Blast cooldown half only. The other half, 1312934 (+50% Fire Blast crit for 30 sec), is
-// granted by killing a non-trivial target, which the sim's targets never do.
+// Improved Fire Blast (11078, Wake of Fire before build 70425): -1/-2 sec on Fire Blast's cooldown and,
+// since 70425, +8/15 yards of range in place of Wake of Fire's crit-on-kill buff.
 func (mage *Mage) registerImprovedFireBlast() {
 	if mage.Talents.ImprovedFireBlast == 0 {
 		return
@@ -51,6 +51,11 @@ func (mage *Mage) registerImprovedFireBlast() {
 		ClassMask: MageSpellFireBlast,
 		TimeValue: time.Millisecond * time.Duration(spellData.ImprovedFireBlast.Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_COOLDOWN)).ValueAt(mage.Talents.ImprovedFireBlast)),
 		Kind:      core.SpellMod_Cooldown_Flat,
+	})
+	mage.AddStaticMod(core.SpellModConfig{
+		ClassMask:  MageSpellFireBlast,
+		FloatValue: spellData.ImprovedFireBlast.Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_RANGE)).ValueAt(mage.Talents.ImprovedFireBlast),
+		Kind:       core.SpellMod_Range_Flat,
 	})
 }
 
@@ -247,6 +252,20 @@ func (mage *Mage) registerHotStreak() {
 		Callback:           core.CallbackOnSpellHitDealt,
 		ClassSpellMask:     MageSpellFireball | MageSpellFrostfireBolt | MageSpellFireBlast | MageSpellScorch,
 		Outcome:            core.OutcomeCrit,
+		TriggerImmediately: true,
+		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			mage.HotStreakAura.Activate(sim)
+			mage.HotStreakAura.AddStack(sim)
+		},
+	})
+
+	// Build 70425: "Fire Blast grants an additional stack every time it deals damage", so a Fire Blast
+	// hit is one stack and a Fire Blast crit two.
+	mage.MakeProcTriggerAura(core.ProcTrigger{
+		Name:               "Hot Streak Fire Blast",
+		Callback:           core.CallbackOnSpellHitDealt,
+		ClassSpellMask:     MageSpellFireBlast,
+		Outcome:            core.OutcomeLanded,
 		TriggerImmediately: true,
 		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 			mage.HotStreakAura.Activate(sim)

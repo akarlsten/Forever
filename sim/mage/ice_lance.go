@@ -4,8 +4,9 @@ import (
 	"github.com/wowsims/forever/sim/core"
 )
 
-// Damage bonus against a target the mage counts as frozen, i.e. one held by Fingers of Frost.
-const IceLanceFrozenMultiplier = 4.0
+// Damage bonus against a target the mage counts as frozen, i.e. one held by Fingers of Frost: the
+// row's second effect, +200% since build 70425 (was +300%).
+var IceLanceFrozenMultiplier = 1 + spellData.IceLance.Highest().EffectN(2).Percent()
 
 func (mage *Mage) registerIceLanceSpell() {
 	if !mage.Talents.IceLance {
