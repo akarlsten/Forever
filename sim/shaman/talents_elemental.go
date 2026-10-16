@@ -37,6 +37,7 @@ func (shaman *Shaman) registerElementalTalents() {
 
 	// Tier 7
 	shaman.applyLavaBurst()
+	shaman.applyElementalMastery()
 }
 
 func (shaman *Shaman) applyCallOfFlame() {
@@ -48,6 +49,14 @@ func (shaman *Shaman) applyCallOfFlame() {
 		Kind:       core.SpellMod_DamageDone_Flat,
 		FloatValue: spellData.CallOfFlame.Effect(dbcenums.A_ADD_PCT_MODIFIER, int32(dbcenums.SPELLMOD_DAMAGE)).FractionAt(shaman.Talents.CallOfFlame),
 		ClassMask:  SpellMaskFireTotem | SpellMaskFlameShock | SpellMaskFireNova | SpellMaskLavaBurst,
+	})
+
+	// Build 70425 added a third effect: Flame Shock lasts 3/6/9 sec longer, one tick per 3 sec.
+	extra := time.Millisecond * time.Duration(spellData.CallOfFlame.Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_DURATION)).ValueAt(shaman.Talents.CallOfFlame))
+	shaman.AddStaticMod(core.SpellModConfig{
+		Kind:      core.SpellMod_DotNumberOfTicks_Flat,
+		IntValue:  int32(extra / flameShockRank.PeriodicEffect().Period()),
+		ClassMask: SpellMaskFlameShockDot,
 	})
 }
 
@@ -213,8 +222,9 @@ func (shaman *Shaman) applyElementalAlacrity() {
 }
 
 // applyElementalReach implements Elemental Reach, new in Forever: 28999 adds 3/6 yards to Lightning
-// Bolt, Chain Lightning and Lava Burst range and 8/15 to Flame Shock's (its two class masks). The first
-// mask also reaches Fire Nova, which centres on the shaman and has no range here.
+// Bolt, Chain Lightning and Lava Burst range. The mask also reaches Fire Nova, which centres on the
+// shaman and has no range here. Build 70425 dropped the Flame Shock range (effect 2 is now a dummy)
+// for a Totemic Projection cooldown the sim does not cast.
 func (shaman *Shaman) applyElementalReach() {
 	if shaman.Talents.ElementalReach == 0 {
 		return
@@ -223,11 +233,6 @@ func (shaman *Shaman) applyElementalReach() {
 	shaman.AddStaticMod(core.SpellModConfig{
 		ClassMask:  SpellMaskLightningBolt | SpellMaskChainLightning | SpellMaskLavaBurst,
 		FloatValue: spellData.ElementalReach.EffectAt(1).ValueAt(shaman.Talents.ElementalReach),
-		Kind:       core.SpellMod_Range_Flat,
-	})
-	shaman.AddStaticMod(core.SpellModConfig{
-		ClassMask:  SpellMaskFlameShock,
-		FloatValue: spellData.ElementalReach.EffectAt(2).ValueAt(shaman.Talents.ElementalReach),
 		Kind:       core.SpellMod_Range_Flat,
 	})
 }
@@ -253,8 +258,9 @@ func (shaman *Shaman) applyEyeOfTheStorm() {
 	}
 }
 
-// applyTrialByFire implements Improved Fire Nova, new in Forever: more Fire Nova damage and a
-// shorter cooldown on it.
+// applyTrialByFire implements Trial by Fire (Improved Fire Nova until build 70425): more Fire Nova
+// damage, a shorter cooldown on it and, since 70425, Magma Totem lasting 10/20 sec longer (one pulse
+// per 2 sec).
 func (shaman *Shaman) applyTrialByFire() {
 	if shaman.Talents.TrialByFire == 0 {
 		return
@@ -270,6 +276,13 @@ func (shaman *Shaman) applyTrialByFire() {
 		TimeValue: time.Millisecond * time.Duration(spellData.TrialByFire.Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_COOLDOWN)).ValueAt(shaman.Talents.TrialByFire)),
 		ClassMask: SpellMaskFireNova,
 	})
+
+	extra := time.Millisecond * time.Duration(spellData.TrialByFire.Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_DURATION)).ValueAt(shaman.Talents.TrialByFire))
+	shaman.AddStaticMod(core.SpellModConfig{
+		Kind:      core.SpellMod_DotNumberOfTicks_Flat,
+		IntValue:  int32(extra / magmaTotemTickLength),
+		ClassMask: SpellMaskMagmaTotem,
+	})
 }
 
 // applyEarthbound implements Earthbound, new in Forever.
@@ -280,6 +293,57 @@ func (shaman *Shaman) applyEarthbound() {
 	if !shaman.Talents.Earthbound {
 		return
 	}
+}
+
+// applyElementalMastery implements Elemental Mastery, new to the tree in build 70425 (16166): for 15
+// sec, Lightning Bolt and Lava Burst cast 0.5 sec faster and Chain Lightning has no cooldown, on a 3
+// min cooldown.
+//
+// The row's SpellAuraOptions still carry one charge (ProcTypeMask 87376), the TBC version's "next
+// spell" charge, but the tooltip says only "Lasts 15 sec" and a charge spent on the first Chain
+// Lightning would make "no cooldown" pointless. The sim follows the tooltip: nothing spends it.
+// Unverified.
+func (shaman *Shaman) applyElementalMastery() {
+	if !shaman.Talents.ElementalMastery {
+		return
+	}
+
+	rank := spellData.ElementalMastery.Highest()
+	castTime := time.Millisecond * time.Duration(rank.Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_CASTING_TIME)).BasePoints)
+	chainLightning := spellData.ChainLightning.Highest()
+	chainLightningCooldown := max(chainLightning.Cooldown(), chainLightning.CategoryCooldown())
+	cooldownCut := -rank.Effect(dbcenums.A_ADD_PCT_MODIFIER, int32(dbcenums.SPELLMOD_COOLDOWN)).Percent() // 1: all of it
+
+	buffAura := shaman.RegisterAura(core.Aura{
+		Label:    "Elemental Mastery",
+		ActionID: core.ActionID{SpellID: rank.ID},
+		Duration: rank.Duration(),
+	}).AttachSpellMod(core.SpellModConfig{
+		Kind:      core.SpellMod_CastTime_Flat,
+		TimeValue: castTime,
+		ClassMask: SpellMaskLightningBolt | SpellMaskLavaBurst,
+	}).AttachSpellMod(core.SpellModConfig{
+		Kind:      core.SpellMod_Cooldown_Flat,
+		TimeValue: -time.Duration(float64(chainLightningCooldown) * cooldownCut),
+		ClassMask: SpellMaskChainLightning,
+	})
+
+	spell := shaman.RegisterSpell(core.SpellConfig{
+		ActionID: core.ActionID{SpellID: rank.ID},
+		Flags:    core.SpellFlagNoOnCastComplete | core.SpellFlagAPL,
+		Cast: core.CastConfig{
+			CD: core.Cooldown{
+				Timer:    shaman.NewTimer(),
+				Duration: max(rank.Cooldown(), rank.CategoryCooldown()),
+			},
+		},
+		ApplyEffects: func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+			buffAura.Activate(sim)
+		},
+		RelatedSelfBuff: buffAura,
+	})
+
+	shaman.AddMajorCooldown(core.MajorCooldown{Spell: spell, Type: core.CooldownTypeDPS})
 }
 
 // applyLavaBurst grants Lava Burst, new in Forever. See lava_burst.go.

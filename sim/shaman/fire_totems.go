@@ -134,9 +134,12 @@ func (shaman *Shaman) registerFlametongueTotemSpell() {
 	shaman.FlametongueTotem = shaman.RegisterSpell(config)
 }
 
+// Magma Totem pulses every 2 sec for its life.
+const magmaTotemTickLength = 2 * time.Second
+
 func (shaman *Shaman) registerMagmaTotemSpell() {
 	duration := magmaTotemRank.Duration()
-	tickLength := core.DurationFromSeconds(2)
+	tickLength := magmaTotemTickLength
 
 	shaman.MagmaTotem = shaman.RegisterSpell(core.SpellConfig{
 		ActionID:       core.ActionID{SpellID: magmaTotemRank.ID},
@@ -176,7 +179,8 @@ func (shaman *Shaman) registerMagmaTotemSpell() {
 		ApplyEffects: func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
 			shaman.cancelFireTotems(sim)
 			spell.AOEDot().Apply(sim)
-			shaman.TotemExpirations[FireTotem] = sim.CurrentTime + duration
+			// The dot's duration, which carries Trial by Fire's extra pulses.
+			shaman.TotemExpirations[FireTotem] = sim.CurrentTime + spell.AOEDot().BaseDuration()
 		},
 	})
 }

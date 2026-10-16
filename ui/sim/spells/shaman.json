@@ -268,9 +268,9 @@
 	"408510": {
 		"ability": "Water Shield",
 		"file": "sim/shaman/shields.go",
-		"note": "Beta client 1.60.1.70009 408510: no mana cost, 15 sec cooldown, 3 charges, 3.5 sec proc recovery, 2% of maximum mana per globe (408511).",
+		"note": "Beta client 1.60.1.70009 408510: no mana cost, 15 sec cooldown, 3 charges, 3.5 sec proc recovery, 2% of maximum mana per globe (408511). Build 1.60.1.70425 widened the proc types (156328 -> 221864): any of the shaman's own spell crits spends a globe, not only heals.",
 		"source": "forever",
-		"tooltip": "Instant\nThe caster is surrounded by 3 globes of water. When a spell, melee, or ranged attack hits the caster or when one of the caster's healing spells gets a critical result, 2% of maximum mana is restored to the caster, expending one water globe. Only one globe will activate every few seconds. Lasts 10 min. Only one Elemental Shield can be active on the Shaman at any one time."
+		"tooltip": "Instant\nThe caster is surrounded by 3 globes of water. When a spell, melee, or ranged attack hits the caster or when one of the caster's spells gets a critical result, 2% of maximum mana is restored to the caster, expending one water globe. Only one globe will activate every few seconds. Lasts 10 min. Only one Elemental Shield can be active on the Shaman at any one time."
 	},
 	"425336": {
 		"ability": "Rage of the Farseer",
@@ -305,5 +305,12 @@
 		"note": "The buff (1238931) is 50% while-casting regeneration for 15 sec at either rank; the talent curve (1223031) scales only the two chances, 50% and 100%. The proc is rolled when the Stormstrike cast completes.",
 		"source": "forever",
 		"tooltip": "15 sec duration\nWhen you Stormstrike, you have a 50% chance per point to gain 50% mana regeneration while casting spells for 15 sec, and Stormstrike's cooldown has a 50% chance per point to reset each time you Dodge or Parry."
+	},
+	"16166": {
+		"ability": "Elemental Mastery",
+		"file": "sim/shaman/talents_elemental.go",
+		"note": "New to the Elemental tree in build 1.60.1.70425 (trait definition 134219, row 6, after Lava Burst). 16166: 3 min cooldown, lasts 15 sec, -500 ms cast time on Lightning Bolt and Lava Burst (SPELLMOD_CASTING_TIME) and -100% cooldown on Chain Lightning. Its SpellAuraOptions keep one charge (ProcTypeMask 87376); the tooltip names none, so the sim lets every cast in the 15 sec benefit. Unverified.",
+		"source": "forever",
+		"tooltip": "Instant\n3 min cooldown\nGain mastery over Fire and Lightning, reducing the cast time of Lightning Bolt and Lava Burst by 0.5 sec, and removing the cooldown from Chain Lightning. Lasts 15 sec."
 	}
 }

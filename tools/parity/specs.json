@@ -47,7 +47,7 @@
       "masterApl": "ui/rogue/apls/combat_sinister_strike",        "nextApl": "ui/specs/rogue/dps/apls/combat_sinister_strike",
       "gear": "ui/specs/rogue/dps/gear_sets/combat_sinister_strike_prebis" },
     { "name": "elemental_shaman",    "race": "RaceOrc",      "profile": "caster", "distance": 20,
-      "talents": "550533100000135--553302001",
+      "talents": "5505331000001351--553302001",
       "masterApl": "ui/elemental_shaman/apls/default",            "nextApl": "ui/specs/shaman/elemental/apls/forever",
       "gear": "ui/specs/shaman/elemental/gear_sets/launch" },
     { "name": "enhancement_shaman",  "race": "RaceTroll",    "profile": "melee", "mh": 15240, "oh": 17002,

@@ -34989,11 +34989,11 @@ var generatedHandTriggers = map[int32][]int32{
 	14304:  {14300},  // Immolation Trap rank 4's trap object casts the burn 14300. Client 1.60.1.70291 renamed the burn from "Immolation Trap Effect" to "Immolation Trap", the cast's own name, so it no longer forms a family of its own (#758); same rank, fire school and 15 s periodic damage as before the rename
 	14305:  {14301},  // Immolation Trap rank 5's trap object casts the burn 14301. Client 1.60.1.70291 renamed the burn from "Immolation Trap Effect" to "Immolation Trap", the cast's own name, so it no longer forms a family of its own (#758); same rank, fire school and 15 s periodic damage as before the rename
 	20230:  {20240},  // Retaliation's dummy aura (aura 4) casts the counterattack 20240: same name, class set and icon, weapon damage with no base, a cost of 1 in SpellPower that is a tenth of a rage
-	408341: {408423}, // Fire Nova's scripted dummy (level 12) casts the nova 408423: same name, level and fire school, 0.214 coefficient; beta logs record every Fire Nova hit as 408423 and none as the $-cited Era row
-	408342: {408424}, // Fire Nova's scripted dummy (level 22) casts the nova 408424: same name, level and fire school, 0.214 coefficient; beta logs record every Fire Nova hit as 408423 and none as the $-cited Era row
-	408343: {408426}, // Fire Nova's scripted dummy (level 32) casts the nova 408426: same name, level and fire school, 0.214 coefficient; beta logs record every Fire Nova hit as 408423 and none as the $-cited Era row
-	408344: {408427}, // Fire Nova's scripted dummy (level 42) casts the nova 408427: same name, level and fire school, 0.214 coefficient; beta logs record every Fire Nova hit as 408423 and none as the $-cited Era row
-	408345: {408428}, // Fire Nova's scripted dummy (level 52) casts the nova 408428: same name, level and fire school, 0.214 coefficient; beta logs record every Fire Nova hit as 408423 and none as the $-cited Era row
+	408341: {408423}, // Fire Nova's scripted dummy (level 12) casts the nova 408423: same name, level and fire school, 0.143 coefficient (0.214 before build 70425); beta logs record every Fire Nova hit as 408423 and none as the $-cited Era row
+	408342: {408424}, // Fire Nova's scripted dummy (level 22) casts the nova 408424: same name, level and fire school, 0.143 coefficient (0.214 before build 70425); beta logs record every Fire Nova hit as 408423 and none as the $-cited Era row
+	408343: {408426}, // Fire Nova's scripted dummy (level 32) casts the nova 408426: same name, level and fire school, 0.143 coefficient (0.214 before build 70425); beta logs record every Fire Nova hit as 408423 and none as the $-cited Era row
+	408344: {408427}, // Fire Nova's scripted dummy (level 42) casts the nova 408427: same name, level and fire school, 0.143 coefficient (0.214 before build 70425); beta logs record every Fire Nova hit as 408423 and none as the $-cited Era row
+	408345: {408428}, // Fire Nova's scripted dummy (level 52) casts the nova 408428: same name, level and fire school, 0.143 coefficient (0.214 before build 70425); beta logs record every Fire Nova hit as 408423 and none as the $-cited Era row
 }
 
 func init() { install(generatedSpells, generatedCurves, generatedHandTriggers) }
