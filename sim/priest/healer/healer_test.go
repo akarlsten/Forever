@@ -47,7 +47,7 @@ func TestHealerPriest(t *testing.T) {
 }
 
 // ui/specs/priest/healer/presets.ts.
-var HolyTalents = "00520203133-2350510323000053"
+var HolyTalents = "00520303132-2350510323000053"
 var DisciplineTalents = "005205031332011531-03505003"
 
 // The UI sets no consumables for this spec (the TBC flask, food and potion are not in the Forever client).

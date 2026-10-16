@@ -339,3 +339,51 @@ func TestShadowWeavingStacksPerTarget(t *testing.T) {
 		}
 	}
 }
+
+// Dark Inspiration 5/5 (build 70425): Mind Blast and a full Mind Flay channel give 15% Spirit for 10 sec.
+func TestDarkInspirationRaisesSpirit(t *testing.T) {
+	for _, spellName := range []string{"Mind Blast", "Mind Flay"} {
+		player := core.WithSpec(&proto.Player{
+			Race:          proto.Race_RaceUndead,
+			Class:         proto.Class_ClassPriest,
+			Equipment:     &proto.EquipmentSpec{},
+			Consumables:   &proto.ConsumesSpec{},
+			TalentsString: "--0000000105",
+			Rotation:      &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
+		}, &proto.Player_DpsPriest{DpsPriest: &proto.DpsPriest{Options: &proto.DpsPriest_Options{ClassOptions: &proto.PriestOptions{}}}})
+		sim := core.NewSim(&proto.RaidSimRequest{
+			SimOptions: &proto.SimOptions{RandomSeed: 100},
+			Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+			Encounter:  core.MakeSingleTargetEncounter(0),
+		}, simsignals.CreateSignals())
+		sim.Reset()
+		priest := sim.Raid.Parties[0].Players[0].(PriestAgent).GetPriest()
+		aura := priest.GetAura("Dark Inspiration - " + priest.Label)
+		if aura == nil {
+			t.Fatal("no Dark Inspiration aura on the priest")
+		}
+		if aura.Duration.Seconds() != 10 {
+			t.Errorf("Dark Inspiration lasts %v, want 10s", aura.Duration)
+		}
+
+		spellID := spellData.MindBlast.Highest().ID
+		if spellName == "Mind Flay" {
+			spellID = spellData.MindFlay.Highest().ID
+		}
+		spell := priest.GetSpell(core.ActionID{SpellID: spellID})
+		priest.AddStatDynamic(sim, stats.SpellHitPercent, 100)
+		before := priest.GetStat(stats.Spirit)
+		if !spell.Cast(sim, priest.CurrentTarget) {
+			t.Fatalf("%s did not cast", spellName)
+		}
+		for i := 0; i < 1000 && !aura.IsActive(); i++ {
+			sim.Step()
+		}
+		if !aura.IsActive() {
+			t.Fatalf("%s gave no Dark Inspiration", spellName)
+		}
+		if got, want := priest.GetStat(stats.Spirit), before*1.15; !core.WithinToleranceFloat64(want, got, 1) {
+			t.Errorf("%s: Spirit %v with Dark Inspiration, want %v", spellName, got, want)
+		}
+	}
+}

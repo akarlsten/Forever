@@ -17,7 +17,7 @@ import SmiteLaunchGear from './gear_sets/smite_launch.gear.json';
 export const ROTATION_PRESET_SHADOW = PresetUtils.makePresetAPLRotation('Shadow', ShadowApl);
 export const ROTATION_PRESET_SMITE = PresetUtils.makePresetAPLRotation('Smite', SmiteApl);
 
-export const TalentsP1Shadow = PresetUtils.makePresetTalents('Shadow', SavedTalents.create({ talentsString: '00530323103--50552001201300051' }));
+export const TalentsP1Shadow = PresetUtils.makePresetTalents('Shadow', SavedTalents.create({ talentsString: '00530323103--50552001211300051' }));
 // The community builds the rankings page runs on our Forever sim: Shadow 15/0/36 and Smite 31/17/3.
 export const ShadowTalents = PresetUtils.makePresetTalents('Shadow 15/0/36', SavedTalents.create({ talentsString: '02530003101--55052201201302251' }));
 // Thirty-one points of Discipline for Power Infusion, twenty of Holy for the pieces that scale Smite.

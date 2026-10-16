@@ -42,9 +42,9 @@ func (priest *Priest) registerDisciplineTalents() {
 	priest.applyPowerInfusion()
 }
 
-// Power in Light is new in Forever: Smite and Penance hit 2% harder per point while this priest's
-// Holy Fire is burning the target. The client states the ladder on a dummy effect (1309969), so the
-// spells it names come from the tooltip.
+// Power in Light is new in Forever: Smite and Penance hit 3% harder per point while this priest's
+// Holy Fire or (since build 70425) Shadow Word: Pain is on the target. The client states the ladder
+// on a dummy effect (1309969), so the spells it names come from the tooltip.
 func (priest *Priest) applyPowerInLight() {
 	if priest.Talents.PowerInLight == 0 {
 		return
@@ -52,9 +52,27 @@ func (priest *Priest) applyPowerInLight() {
 
 	multiplier := spellData.PowerInLight.MultiplierAt(priest.Talents.PowerInLight)
 
+	var shadowWordPains []*core.Spell
+	priest.OnSpellRegistered(func(spell *core.Spell) {
+		if spell.Matches(PriestSpellShadowWordPain) {
+			shadowWordPains = append(shadowWordPains, spell)
+		}
+	})
+	afflicted := func(target *core.Unit) bool {
+		if priest.hasActiveHolyFire(target) {
+			return true
+		}
+		for _, spell := range shadowWordPains {
+			if dot := spell.Dot(target); dot != nil && dot.IsActive() {
+				return true
+			}
+		}
+		return false
+	}
+
 	for _, target := range priest.Env.Encounter.AllTargetUnits {
 		target.AddDynamicDamageTakenModifier(func(_ *core.Simulation, spell *core.Spell, result *core.SpellResult, _ bool) {
-			if spell.Unit == &priest.Unit && spell.Matches(PriestSpellSmite|PriestSpellPenance) && priest.hasActiveHolyFire(result.Target) {
+			if spell.Unit == &priest.Unit && spell.Matches(PriestSpellSmite|PriestSpellPenance) && afflicted(result.Target) {
 				result.Damage *= multiplier
 			}
 		})
@@ -73,10 +91,9 @@ func (priest *Priest) applyWandSpecialization() {
 
 // Twin Disciplines is new in Forever: +1% damage and healing per point on instant spells. The client
 // states it as two SPELL_AURA_ADD_PCT_MODIFIER effects, damage and dot, so it joins the additive
-// bucket rather than multiplying. 1225132's masks name Holy Nova, Chastise, Divine Grace and
-// Contingency Plan (damage) and Shadow Word: Pain and Devouring Plague (dot). The devs called the
-// missing Mind Flay and Shadow Word: Death bugs, fixed for the next build (forever-bugs #322, #328,
-// 2026-10-13), so both are added; Penance and Starshards stay out.
+// bucket rather than multiplying. Build 70425 widened 1225132's masks (forever-bugs #322, #328): the
+// damage mask names Holy Nova, Chastise, Divine Grace, Contingency Plan, Penance and Shadow Word:
+// Death, the dot mask Shadow Word: Pain, Devouring Plague, Mind Flay and Starshards.
 func (priest *Priest) applyTwinDisciplines() {
 	if priest.Talents.TwinDisciplines == 0 {
 		return
@@ -84,7 +101,8 @@ func (priest *Priest) applyTwinDisciplines() {
 
 	priest.AddStaticMod(core.SpellModConfig{
 		ClassMask: PriestSpellHolyNova | PriestSpellChastise | PriestSpellDivineGrace | PriestSpellContingencyPlan |
-			PriestSpellShadowWordPain | PriestSpellDevouringPlague | PriestSpellMindFlay | PriestSpellShadowWordDeath,
+			PriestSpellShadowWordPain | PriestSpellDevouringPlague | PriestSpellMindFlay | PriestSpellShadowWordDeath |
+			PriestSpellPenance | PriestSpellStarshards,
 		FloatValue: spellData.TwinDisciplines.EffectAt(1).FractionAt(priest.Talents.TwinDisciplines),
 		Kind:       core.SpellMod_DamageDone_Flat,
 	})

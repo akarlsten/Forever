@@ -26,6 +26,8 @@ func (priest *Priest) registerShadowTalents() {
 	priest.applyImprovedPsychicScream()
 	priest.applyMindFlay()
 
+	priest.applyDarkInspiration()
+
 	// Tier 4
 	priest.applyVampiricEmbrace()
 	priest.applyShadowWeaving()
@@ -143,6 +145,7 @@ var MindFlayRankMap = spellData.MindFlay
 func (priest *Priest) registerMindFlaySpell(rank *spelldata.Spell) {
 	tick := rank.PeriodicEffect()
 	tickLength := tick.Period()
+	numTicks := int32(rank.Duration() / tickLength)
 	improvedStep := priest.improvedMindFlayStep()
 	var ticksDealt int
 
@@ -173,7 +176,7 @@ func (priest *Priest) registerMindFlaySpell(rank *spelldata.Spell) {
 			Aura: core.Aura{
 				Label: fmt.Sprintf("MindFlay-%d", rank.RankNumber()),
 			},
-			NumberOfTicks:       int32(rank.Duration() / tickLength),
+			NumberOfTicks:       numTicks,
 			TickLength:          tickLength,
 			AffectedByCastSpeed: false,
 			BonusCoefficient:    tick.Coeff(),
@@ -188,6 +191,9 @@ func (priest *Priest) registerMindFlaySpell(rank *spelldata.Spell) {
 				dot.SnapshotAttackerMultiplier *= growth
 				dot.CalcAndDealPeriodicSnapshotDamage(sim, target, priestTickOutcome(rank.PeriodicCanCrit(), dot))
 				dot.SnapshotAttackerMultiplier /= growth
+				if int32(ticksDealt) == numTicks && priest.procDarkInspiration != nil {
+					priest.procDarkInspiration(sim)
+				}
 			},
 		},
 
@@ -443,5 +449,40 @@ func (priest *Priest) applyShadowform() {
 		},
 
 		RelatedSelfBuff: priest.ShadowformAura,
+	})
+}
+
+// Dark Inspiration (1326159, new in build 70425): Mind Blast and a fully channeled Mind Flay raise the
+// Spirit of the priest and the priest's party by 3/6/9/12/15% for 10 sec (1326168, aura 80 on Spirit).
+func (priest *Priest) applyDarkInspiration() {
+	if priest.Talents.DarkInspiration == 0 {
+		return
+	}
+
+	buff := spellData.DarkInspirationTriggered.Highest()
+	multiplier := spellData.DarkInspiration.MultiplierAt(priest.Talents.DarkInspiration)
+
+	var auras []*core.StatBuffAura
+	for _, player := range priest.Party.Players {
+		auras = append(auras, player.GetCharacter().NewTemporaryStatMultiplierAura(core.Aura{
+			Label:    "Dark Inspiration - " + priest.Label,
+			ActionID: core.ActionID{SpellID: buff.ID},
+			Duration: buff.Duration(),
+		}, []core.StatMultiplier{{Stat: stats.Spirit, Multiplier: multiplier}}))
+	}
+
+	priest.procDarkInspiration = func(sim *core.Simulation) {
+		for _, aura := range auras {
+			aura.Activate(sim)
+		}
+	}
+
+	priest.MakeProcTriggerAura(core.ProcTrigger{
+		Name:           "Dark Inspiration Trigger",
+		Callback:       core.CallbackOnCastComplete,
+		ClassSpellMask: PriestSpellMindBlast,
+		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			priest.procDarkInspiration(sim)
+		},
 	})
 }
