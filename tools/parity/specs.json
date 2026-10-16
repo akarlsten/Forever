@@ -55,7 +55,7 @@
       "masterApl": "ui/enhancement_shaman/apls/default",          "nextApl": "ui/specs/shaman/enhancement/apls/forever",
       "gear": "ui/specs/shaman/enhancement/gear_sets/launch" },
     { "name": "warlock",             "race": "RaceOrc",      "profile": "caster", "distance": 20,
-      "talents": "2530002013521105--05000551",
+      "talents": "2552002013521115--05000551",
       "masterApl": "ui/warlock/apls/forever_affliction",          "nextApl": "ui/specs/warlock/dps/apls/affliction",
       "gear": "ui/specs/warlock/dps/gear_sets/prebis" },
     { "name": "warrior",             "race": "RaceOrc",      "profile": "melee", "mh": 15256,
