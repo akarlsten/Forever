@@ -216,8 +216,11 @@ func TestTaurenEndurance(t *testing.T) {
 	_, human := setupRacialSim(proto.Race_RaceHuman)
 	_, tauren := setupRacialSim(proto.Race_RaceTauren)
 
-	if !WithinToleranceFloat64(human.GetStat(stats.PhysicalHitPercent)+1, tauren.GetStat(stats.PhysicalHitPercent), 0.0001) {
-		t.Fatalf("Endurance should grant 1%% hit")
+	if human.GetStat(stats.PhysicalHitPercent) != tauren.GetStat(stats.PhysicalHitPercent) {
+		t.Errorf("Endurance no longer grants hit (build 70425)")
+	}
+	if mh := tauren.AutoAttacks.MHAuto().CritMultiplierAdditive; !WithinToleranceFloat64(0.02, mh, 1e-9) {
+		t.Errorf("Endurance should grant 2%% crit damage, got %.3f", mh)
 	}
 }
 
@@ -241,8 +244,8 @@ func TestSkyborneRacials(t *testing.T) {
 		_, fw := setupRacialSim(race)
 
 		swingRatio := human.AutoAttacks.MainhandSwingSpeed().Seconds() / fw.AutoAttacks.MainhandSwingSpeed().Seconds()
-		if !WithinToleranceFloat64(1.01, swingRatio, 0.001) {
-			t.Errorf("%s: Wind Blessed should swing 1%% faster, got x%0.4f", race, swingRatio)
+		if !WithinToleranceFloat64(1.03, swingRatio, 0.001) {
+			t.Errorf("%s: Wind Blessed should swing 3%% faster, got x%0.4f", race, swingRatio)
 		}
 		if at := fw.AttackTables[fw.CurrentTarget.UnitIndex]; !WithinToleranceFloat64(1.05, at.DamageDealtMultiplier, 0.0001) {
 			t.Errorf("%s: Elemental Insight should grant 5%% damage against elementals, got x%0.4f", race, at.DamageDealtMultiplier)

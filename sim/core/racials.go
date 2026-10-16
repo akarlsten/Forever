@@ -158,9 +158,10 @@ func applyRaceEffects(agent Agent) {
 			Type:  CooldownTypeSurvival,
 		})
 	case proto.Race_RaceTauren:
+		// Endurance (20550): build 70425 swapped its 1% hit for +2% crit damage and healing (auras 163
+		// and 50), with no weapon requirement.
 		character.MultiplyStat(stats.Health, 1.05)
-		character.AddStat(stats.PhysicalHitPercent, 1)
-		character.AddStat(stats.SpellHitPercent, 1)
+		character.AddStaticMod(SpellModConfig{Kind: SpellMod_CritMultiplier_Flat, FloatValue: 0.02})
 	case proto.Race_RaceTroll:
 		applyCreatureTypeSlaying(character, proto.MobType_MobTypeBeast)
 
@@ -273,11 +274,12 @@ func applyRaceEffects(agent Agent) {
 	}
 }
 
+// Wind Blessed (1259710): 3% melee, ranged and cast haste since build 70425 (was 1%).
 func applySkyborneSharedRacials(character *Character) {
 	applyCreatureTypeSlaying(character, proto.MobType_MobTypeElemental)
 
-	character.PseudoStats.AttackSpeedMultiplier *= 1.01
-	character.PseudoStats.CastSpeedMultiplier *= 1.01
+	character.PseudoStats.AttackSpeedMultiplier *= 1.03
+	character.PseudoStats.CastSpeedMultiplier *= 1.03
 }
 
 // Beast Slaying (troll 20557), Big Game Hunter (dwarf 1259721) and Elemental Insight (Skyborne

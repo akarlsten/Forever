@@ -1222,85 +1222,85 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-Settings-Tauren-Naked-DefaultTalents-Standard-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 299.15358
-  tps: 546.32549
+  dps: 299.84108
+  tps: 546.66717
  }
 }
 dps_results: {
  key: "TestFeralCat-Settings-Tauren-Naked-DefaultTalents-Standard-default-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 299.15358
-  tps: 168.56164
+  dps: 299.84108
+  tps: 168.90332
  }
 }
 dps_results: {
  key: "TestFeralCat-Settings-Tauren-Naked-DefaultTalents-Standard-default-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 326.29985
-  tps: 180.54801
+  dps: 327.37547
+  tps: 181.08259
  }
 }
 dps_results: {
  key: "TestFeralCat-Settings-Tauren-Naked-DefaultTalents-Standard-default-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 152.9896
-  tps: 111.58095
+  dps: 153.38593
+  tps: 111.86234
  }
 }
 dps_results: {
  key: "TestFeralCat-Settings-Tauren-Naked-DefaultTalents-Standard-default-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 152.9896
-  tps: 111.58095
+  dps: 153.38593
+  tps: 111.86234
  }
 }
 dps_results: {
  key: "TestFeralCat-Settings-Tauren-Naked-DefaultTalents-Standard-default-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 178.00145
-  tps: 129.57603
+  dps: 178.55664
+  tps: 129.97021
  }
 }
 dps_results: {
  key: "TestFeralCat-Settings-Tauren-Naked-FeralCat-Standard-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 314.65809
-  tps: 634.5052
+  dps: 314.40164
+  tps: 633.93864
  }
 }
 dps_results: {
  key: "TestFeralCat-Settings-Tauren-Naked-FeralCat-Standard-default-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 314.65809
-  tps: 180.29108
+  dps: 314.40164
+  tps: 180.14167
  }
 }
 dps_results: {
  key: "TestFeralCat-Settings-Tauren-Naked-FeralCat-Standard-default-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 339.4711
-  tps: 191.39599
+  dps: 338.47151
+  tps: 190.91098
  }
 }
 dps_results: {
  key: "TestFeralCat-Settings-Tauren-Naked-FeralCat-Standard-default-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 156.46382
-  tps: 114.00031
+  dps: 157.8007
+  tps: 114.9495
  }
 }
 dps_results: {
  key: "TestFeralCat-Settings-Tauren-Naked-FeralCat-Standard-default-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 156.46382
-  tps: 114.00031
+  dps: 157.8007
+  tps: 114.9495
  }
 }
 dps_results: {
  key: "TestFeralCat-Settings-Tauren-Naked-FeralCat-Standard-default-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 179.17522
-  tps: 130.2674
+  dps: 178.53824
+  tps: 129.81515
  }
 }
 dps_results: {
