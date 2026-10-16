@@ -259,10 +259,9 @@ func TestLifeTapAddsNoThreat(t *testing.T) {
 	}
 }
 
-// Destructive Reach (17917) adds 10/20% to the range of the warlock spells its client class mask
-// reaches, Affliction ones included but not Curse of Recklessness; it was an empty stub and the
-// spells carried no range, so a warlock cast from any distance.
-func TestDestructiveReachExtendsRange(t *testing.T) {
+// Destructive Reach (17917) adds 10/20% to the range of the Destruction spells, and since build 70425
+// Grim Reach (18218) the same to the Affliction ones its mask names, Curse of Recklessness included.
+func TestReachTalentsExtendRange(t *testing.T) {
 	for _, c := range []struct {
 		talents string
 		spell   int32
@@ -271,10 +270,13 @@ func TestDestructiveReachExtendsRange(t *testing.T) {
 		{"", spellData.ShadowBolt.Highest().ID, 30},
 		{"", spellData.DrainLife.Highest().ID, 20},
 		{"--2", spellData.ShadowBolt.Highest().ID, 36},
-		{"--2", spellData.Corruption.Highest().ID, 36},
-		{"--2", spellData.DrainLife.Highest().ID, 24},
+		{"--2", spellData.Corruption.Highest().ID, 30},
+		{"--2", spellData.DrainLife.Highest().ID, 20},
 		{"--1", spellData.Immolate.Highest().ID, 33},
-		{"--2", spellData.CurseOfRecklessness.Highest().ID, 30},
+		{"0002", spellData.Corruption.Highest().ID, 36},
+		{"0002", spellData.DrainLife.Highest().ID, 24},
+		{"0001", spellData.CurseOfRecklessness.Highest().ID, 33},
+		{"0002", spellData.ShadowBolt.Highest().ID, 30},
 	} {
 		player := core.WithSpec(&proto.Player{
 			Race: proto.Race_RaceOrc, Class: proto.Class_ClassWarlock, Equipment: &proto.EquipmentSpec{},

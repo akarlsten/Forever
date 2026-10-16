@@ -15,6 +15,7 @@ func (warlock *Warlock) registerAfflictionTalents() {
 	warlock.applyImprovedCorruption()
 
 	// Tier 2
+	warlock.applyGrimReach()
 	warlock.applySoulHarvesting()
 	warlock.applyImprovedDrains()
 
@@ -38,6 +39,19 @@ func (warlock *Warlock) registerAfflictionTalents() {
 
 	// Tier 7
 	// Wrack: wrack.go
+}
+
+// Grim Reach (18218, back in build 70425 on the node Malediction held): 10/20% more range on the
+// Affliction spells its mask names, the curses and banes among them.
+func (warlock *Warlock) applyGrimReach() {
+	if warlock.Talents.GrimReach == 0 {
+		return
+	}
+
+	share := spellData.GrimReach.Effect(dbcenums.A_ADD_PCT_MODIFIER, int32(dbcenums.SPELLMOD_RANGE)).FractionAt(warlock.Talents.GrimReach)
+	warlock.extendRange(WarlockSpellCorruption|WarlockSpellCurseOfAgony|WarlockSpellCurseOfDoom|WarlockSpellCurseOfElements|
+		WarlockSpellCurseOfWeakness|WarlockSpellCurseOfRecklessness|WarlockSpellSiphonLife|WarlockSpellDrainLife|
+		WarlockSpellDrainSoul|WarlockSpellDeathCoil|WarlockSpellWrack, share)
 }
 
 // 1% hit a point on every school the warlock casts (A_MOD_SPELL_HIT_CHANCE with no family

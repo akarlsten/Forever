@@ -122,22 +122,25 @@ func (warlock *Warlock) applyShadowburn() {
 	warlock.registerShadowBurn()
 }
 
-// Destructive Reach: 17917 adds 10/20% to the range of every warlock spell its class mask reaches,
-// Affliction ones too, but not Curse of Recklessness. The threat half Classic carried is gone; its
-// radius half reaches no spell the sim registers. The sim's range mod is flat yards, so the share is
-// taken of each spell's own range as it registers. A spell with no range (0) keeps none.
+// Destructive Reach: 17917 adds 10/20% to the range of the warlock's Destruction spells. Build 70425
+// narrowed its mask to them (Shadow Bolt, Immolate, Incinerate, Soul Fire, Shadowburn, Conflagrate,
+// Searing Pain, Rain of Fire, Hellfire), where it had reached Affliction too; Grim Reach now covers
+// those. The sim's range mod is flat yards, so the share is taken of each spell's own range as it
+// registers. A spell with no range (0) keeps none.
 func (warlock *Warlock) applyDestructiveReach() {
 	if warlock.Talents.DestructiveReach == 0 {
 		return
 	}
 
 	share := spellData.DestructiveReach.Effect(dbcenums.A_ADD_PCT_MODIFIER, int32(dbcenums.SPELLMOD_RANGE)).FractionAt(warlock.Talents.DestructiveReach)
+	warlock.extendRange(WarlockSpellShadowBolt|WarlockSpellImmolate|WarlockSpellIncinerate|WarlockSpellSoulFire|
+		WarlockSpellShadowBurn|WarlockSpellConflagrate|WarlockSpellSearingPain|WarlockSpellRainOfFire|WarlockSpellHellfire, share)
+}
+
+// Raises the range of the spells in a mask by a share of their own range as each one registers.
+func (warlock *Warlock) extendRange(mask int64, share float64) {
 	warlock.OnSpellRegistered(func(spell *core.Spell) {
-		if spell.Matches(WarlockSpellShadowBolt | WarlockSpellImmolate | WarlockSpellIncinerate | WarlockSpellSoulFire |
-			WarlockSpellShadowBurn | WarlockSpellConflagrate | WarlockSpellSearingPain | WarlockSpellRainOfFire |
-			WarlockSpellCorruption | WarlockSpellCurseOfAgony | WarlockSpellCurseOfDoom | WarlockSpellCurseOfElements |
-			WarlockSpellCurseOfWeakness | WarlockSpellSiphonLife | WarlockSpellDrainLife | WarlockSpellDrainSoul |
-			WarlockSpellDeathCoil | WarlockSpellWrack) {
+		if spell.Matches(mask) {
 			spell.MaxRange *= 1 + share
 		}
 	})
