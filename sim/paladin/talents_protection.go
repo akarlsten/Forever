@@ -242,7 +242,9 @@ func (paladin *Paladin) applyWeaponSpecialization(bonus float64, handType proto.
 //
 // Each stored attack is a free main-hand swing that leaves the swing timer alone, as the single extra
 // attack was in beta logs 2747-2749 (14 of 16 procs). Unverified for 70425: the stored attacks go off
-// right after the swing that spends them, and the crit half has no cooldown of its own.
+// right after the swing that spends them, and the crit half has no cooldown of its own. The release is
+// a proc trigger like the stores: swinging from a plain OnSpellHitDealt broke the multi-threaded
+// results' match with the single-threaded ones.
 func (paladin *Paladin) applyReckoning() {
 	if paladin.Talents.Reckoning == 0 {
 		return
@@ -257,12 +259,17 @@ func (paladin *Paladin) applyReckoning() {
 		ActionID:  core.ActionID{SpellID: stored.ID},
 		Duration:  core.NeverExpires,
 		MaxStacks: int32(stored.MaxStack),
-		OnSpellHitDealt: func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
-			if !spell.ProcMask.Matches(core.ProcMaskMeleeMHAuto) {
-				return
-			}
-			attacks := aura.GetStacks()
-			aura.Deactivate(sim)
+	})
+	paladin.MakeProcTriggerAura(core.ProcTrigger{
+		Name:     "Reckoning - Release" + paladin.Label,
+		Callback: core.CallbackOnSpellHitDealt,
+		ProcMask: core.ProcMaskMeleeMHAuto,
+		ExtraCondition: func(_ *core.Simulation, _ *core.Spell, _ *core.SpellResult) bool {
+			return paladin.ReckoningAura.IsActive()
+		},
+		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			attacks := paladin.ReckoningAura.GetStacks()
+			paladin.ReckoningAura.Deactivate(sim)
 			for range attacks {
 				paladin.AutoAttacks.InstantMHAttack(sim)
 			}
