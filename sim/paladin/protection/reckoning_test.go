@@ -10,9 +10,10 @@ import (
 	"github.com/wowsims/forever/sim/paladin"
 )
 
-// A Reckoning proc swings at once and leaves the swing timer alone (beta logs 2747-2749), at most
-// once per 1.5 s (client 20177 ProcCategoryRecovery).
-func TestReckoningSwingsWithoutResettingTheTimer(t *testing.T) {
+// Build 70425: Reckoning stores up to 4 extra attacks (1326084) and the next main-hand swing spends
+// them all, each a swing at once that leaves the swing timer alone (beta logs 2747-2749). Crits store
+// with no cooldown; blocks at most once per 1.5 s (client 20177 ProcCategoryRecovery).
+func TestReckoningStoresAttacksForTheNextSwing(t *testing.T) {
 	sim := core.NewSim(&proto.RaidSimRequest{
 		SimOptions: &proto.SimOptions{RandomSeed: 1},
 		Raid: core.SinglePlayerRaidProto(&proto.Player{
@@ -25,43 +26,65 @@ func TestReckoningSwingsWithoutResettingTheTimer(t *testing.T) {
 	}, simsignals.CreateSignals())
 	sim.Reset()
 	pal := sim.Raid.Parties[0].Players[0].(paladin.PaladinAgent).GetPaladin()
-	if pal.Talents.Reckoning == 0 {
+	if pal.Talents.Reckoning == 0 || pal.ReckoningAura == nil {
 		t.Fatal("test build has no Reckoning")
 	}
 	pal.AutoAttacks.EnableAutoSwing(sim)
 	pal.AutoAttacks.StopMeleeUntil(sim, sim.CurrentTime) // a swing just landed
 	next := pal.AutoAttacks.NextAttackAt()
 
-	reck := pal.GetAura("Reckoning - Crit" + pal.Label)
 	mh := pal.AutoAttacks.MHAuto()
 	casts := func() int32 { return mh.SpellMetrics[pal.CurrentTarget.UnitIndex].Casts }
-	crit := &core.SpellResult{Outcome: core.OutcomeCrit, Target: &pal.Unit}
+	stored := func() int32 {
+		if !pal.ReckoningAura.IsActive() {
+			return 0
+		}
+		return pal.ReckoningAura.GetStacks()
+	}
 
-	// 50 crits taken at once (enough to proc), then read the result once the procs' batch window
-	// has passed, well before the next normal swing.
-	critsAt := func(at time.Duration) (swings int32, next time.Duration) {
+	// 50 hits taken at once, read once the procs' batch window has passed.
+	taken := func(trigger string, outcome core.HitOutcome, at time.Duration) {
+		aura := pal.GetAura(trigger + pal.Label)
+		result := &core.SpellResult{Outcome: outcome, Target: &pal.Unit}
 		done := false
 		sim.AddPendingAction(core.NewDelayedAction(core.DelayedActionOptions{DoAt: at, OnAction: func(sim *core.Simulation) {
-			for i := 0; i < 50; i++ {
-				reck.OnSpellHitTaken(reck, sim, mh, crit)
+			for range 50 {
+				aura.OnSpellHitTaken(aura, sim, mh, result)
 			}
 		}}))
 		sim.AddPendingAction(core.NewDelayedAction(core.DelayedActionOptions{DoAt: at + core.SpellBatchWindow + time.Millisecond, OnAction: func(sim *core.Simulation) {
-			swings, next, done = casts(), pal.AutoAttacks.NextAttackAt(), true
+			done = true
 		}}))
 		for !done {
 			sim.Step()
 		}
-		return
 	}
 
-	if swings, got := critsAt(sim.CurrentTime); swings != 1 || got != next {
-		t.Errorf("Reckoning: %d swings, next normal swing %s; want 1 swing and the swing at %s untouched", swings, got, next)
+	taken("Reckoning - Crit", core.OutcomeCrit, sim.CurrentTime)
+	if got := stored(); got != 4 || casts() != 0 {
+		t.Fatalf("after the crits: %d stored and %d swings, want 4 stored and no swing yet", got, casts())
 	}
-	if swings, _ := critsAt(sim.CurrentTime + 1400*time.Millisecond); swings != 1 {
-		t.Errorf("Reckoning swings inside the 1.5 s lockout: %d in total, want 1", swings)
+
+	for casts() == 0 {
+		sim.Step()
 	}
-	if swings, _ := critsAt(sim.CurrentTime + 100*time.Millisecond); swings != 2 {
-		t.Errorf("Reckoning swings after the 1.5 s lockout: %d in total, want 2", swings)
+	swingAt := sim.CurrentTime
+	for sim.CurrentTime < swingAt+core.SpellBatchWindow+time.Millisecond {
+		sim.Step()
+	}
+	if swingAt != next || casts() != 5 || stored() != 0 {
+		t.Errorf("the next swing at %s made %d swings and left %d stored; want it at %s, 5 swings, none left", swingAt, casts(), stored(), next)
+	}
+	if want := next + pal.AutoAttacks.MainhandSwingSpeed(); pal.AutoAttacks.NextAttackAt() != want {
+		t.Errorf("the stored attacks moved the swing after to %s, want %s", pal.AutoAttacks.NextAttackAt(), want)
+	}
+
+	taken("Reckoning - Block", core.OutcomeBlock, sim.CurrentTime)
+	if got := stored(); got != 1 {
+		t.Errorf("50 blocks at once stored %d, want 1 (1.5 s cooldown)", got)
+	}
+	taken("Reckoning - Block", core.OutcomeBlock, sim.CurrentTime+1400*time.Millisecond)
+	if got := stored(); got != 1 {
+		t.Errorf("blocks inside the 1.5 s lockout stored %d in total, want 1", got)
 	}
 }

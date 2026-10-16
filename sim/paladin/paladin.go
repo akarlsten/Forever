@@ -18,6 +18,7 @@ type Paladin struct {
 
 	Forbearance       *core.Aura
 	RighteousFuryAura *core.Aura
+	ReckoningAura     *core.Aura // the stored extra attacks; nil without the talent
 
 	Judgement *core.Spell
 
