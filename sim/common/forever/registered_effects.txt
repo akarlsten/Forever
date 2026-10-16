@@ -5,6 +5,7 @@
 # items
 833 Lifestone
 871 Flurry Axe
+940 Robes of Insight
 942 Freezing Band
 1131 Totem of Infliction
 1168 Skullflame Shield

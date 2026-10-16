@@ -82,12 +82,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		940, // Robes of Insight
-		[
-			"Reduces the Mana cost of all spells by 200 for 12s.", // 18820 - https://www.wowhead.com/forever/spell=18820
-		]
-	],
-	[
 		1168, // Skullflame Shield
 		[
 			"When struck in combat has a 2% chance of dealing 115 Fire damage to all targets around you.", // 18818 - https://www.wowhead.com/forever/spell=18818

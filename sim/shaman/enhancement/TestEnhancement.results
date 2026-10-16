@@ -717,8 +717,8 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-LordSakrasis'Scepter-5028"
  value: {
-  dps: 349.20034
-  tps: 182.88358
+  dps: 333.84579
+  tps: 175.17957
  }
 }
 dps_results: {

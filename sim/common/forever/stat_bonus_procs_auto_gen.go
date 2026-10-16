@@ -9170,29 +9170,12 @@ func RegisterAllProcs() {
 			{ItemID: 1979, ItemName: "Wall of the Dead"},
 		})
 
-	// Each melee hit grants you a stack of Improving Form. At 30 stacks perfect your form, inflicting 490 Physical
-	// damage to your current target and increasing all your stats by 20 for 20s.
-	// https://www.wowhead.com/forever/spell=1325509
-	// trigger 1325535 (every time, core.CallbackOnSpellHitDealt, core.ProcMaskMeleeMHAuto) -> buff 1325508
-	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1325535, BuffSpellID: 1325508},
-		[]shared.ItemVariant{
-			{ItemID: 2801, ItemName: "Blade of Hanna"},
-		})
-
 	// All ranged auto-attacks conjure an icy bolt to blast your current target, inflicting 8 Frost damage.
 	// https://www.wowhead.com/forever/spell=29502
 	// trigger 1316319 (every time, core.CallbackOnSpellHitDealt, core.ProcMaskRangedAuto) -> buff 29502
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1316319, BuffSpellID: 29502},
 		[]shared.ItemVariant{
 			{ItemID: 2824, ItemName: "Hurricane"},
-		})
-
-	// Smite your target with the power of the holy spring, inflicting 56 Holy damage.
-	// https://www.wowhead.com/forever/spell=1312330
-	// trigger 1326019 (every time, core.CallbackOnCastComplete, core.ProcMaskSpellDamage) -> buff 1312330
-	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1326019, BuffSpellID: 1312330},
-		[]shared.ItemVariant{
-			{ItemID: 5028, ItemName: "Lord Sakrasis' Scepter"},
 		})
 
 	// 5% chance of dealing 40 Fire damage on a successful melee attack.
